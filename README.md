@@ -41,14 +41,20 @@ The `.nojekyll` file is required so Pages serves the `vendor/` and
 ## Structure
 
 ```
-index.html          page
+index.html          home: hero, universe map, AI Lab
+clans.html          the codex: one card per clan
+runway.html         Runway 8888: a 3D couture look per house
 css/style.css       design system (dark, Nebula Emerald accent)
 css/fonts.css       self-hosted @font-face rules
 js/data.js          world bible data: planets, clans, official palettes
-js/main.js          orchestration, lazy-loading, ledger, chips
+js/looks.js         Runway 8888 looks: outfit copy + silhouette params
+js/common.js        shared chrome: nav, reveals, footer
+js/main.js          home orchestration and lazy-loading
+js/clans.js         clans page renderer
+js/runway-page.js   runway page controller
 js/hero.js          hero particle field (WebGL)
 js/galaxy.js        interactive universe map (WebGL)
-js/runway.js        particle-couture figure (WebGL)
+js/atelier.js       parametric particle-couture engine (WebGL)
 js/lab.js           AI Lab canvas material studies (2D)
 assets/             imagery + fonts
 vendor/             three.module.min.js

@@ -28,8 +28,8 @@
     </a>
     <nav class="nav-links" id="nav-links" aria-label="Primary">
       <a href="#universe">Universe</a>
-      <a href="#clans">Clans</a>
-      <a href="#runway">Runway</a>
+      <a href="clans.html">Clans</a>
+      <a href="runway.html">Runway 8888</a>
       <a href="#lab">AI Lab</a>
     </nav>
     <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
@@ -85,90 +85,25 @@
           <div class="universe-planets" id="universe-planets" role="group" aria-label="Planets"></div>
           <div class="universe-info" id="universe-info"></div>
           <p class="sr-only" role="status" id="universe-status"></p>
-          <noscript><p class="universe-hint">The interactive map needs JavaScript. The thirteen clans are listed below.</p></noscript>
+          <noscript><p class="universe-hint">The interactive map needs JavaScript. The thirteen clans are listed on the <a href="clans.html">Clans</a> page.</p></noscript>
         </aside>
       </div>
     </section>
 
-    <!-- ============================== CLANS ============================== -->
-    <section class="clans" id="clans">
-      <div class="clans-head">
-        <h2 class="rv">Thirteen Clans</h2>
-        <p class="rv">Every collection begins as a culture. These are the houses of 8888, each with its own world, its own law, and its own official palette.</p>
-      </div>
-
-      <article class="feature feature-chronoa rv">
-        <figure class="feature-media">
-          <img src="assets/queen-ani-thu-zard.jpg"
-               alt="Queen Ani Thu Zard of the Black Chronoa, enthroned in black and gold beneath the sigils of the First Monolith"
-               loading="lazy" width="841" height="1412">
-        </figure>
-        <div class="feature-copy">
-          <p class="feature-kicker">House of the First Monolith</p>
-          <h3>Black Chronoa</h3>
-          <blockquote class="feature-quote">
-            <p>&ldquo;Memory shapes destiny. We endure, so that others may become.&rdquo;</p>
-            <footer>Queen Ani Thu Zard, Keeper of the First Monolith</footer>
-          </blockquote>
-          <p class="feature-body">The central clan of the universe. From the capital of Cindra on Achronox, they guard the First Monolith and dress in void black threaded with chrono gold.</p>
-          <ul class="swatches" data-clan="black-chronoa"></ul>
-        </div>
-      </article>
-
-      <article class="feature feature-nova rv">
-        <figure class="feature-media">
-          <img src="assets/white-nova.jpg"
-               alt="A White Nova priestess in luminous white robes before the crystal spires of Nova Nexus on Jenova"
-               loading="lazy" width="771" height="1024">
-        </figure>
-        <div class="feature-copy">
-          <p class="feature-kicker">Architects of Light</p>
-          <h3>White Nova</h3>
-          <blockquote class="feature-quote">
-            <p>&ldquo;From knowledge comes light. From light comes tomorrow.&rdquo;</p>
-            <footer>NEXUS, Planetary AI of Jenova</footer>
-          </blockquote>
-          <p class="feature-body">The most advanced civilization in the universe. Their couture is pristine white and electric blue, cut like the towers of Nova Nexus: pure, geometric, timeless.</p>
-          <ul class="swatches" data-clan="white-nova"></ul>
-        </div>
-      </article>
-
-      <ul class="ledger" id="clan-ledger"></ul>
-      <noscript>
-        <div class="noscript-clans">
-          <p>JavaScript is off, so here are the houses in brief:</p>
-          <ul>
-            <li><strong>Black Chronoa</strong>, Achronox. Memory and discipline; guardians of the First Monolith.</li>
-            <li><strong>White Nova</strong>, Jenova. Technology, AI, and logic from Nova Nexus.</li>
-            <li><strong>Rogue Lunaris</strong>, Jenova. Moonlight and ancient wisdom from Moonlight Luna.</li>
-            <li><strong>Lumina</strong>, Chrono. Keepers of time and balance in Zemo.</li>
-            <li><strong>Solar Punk</strong>, Earth. Eco-cities of Neon Metro.</li>
-            <li><strong>Cyberpunk</strong>, Earth. The independent networks of Neon Abyss.</li>
-            <li><strong>Chrono Punk</strong>, Earth. Temporal explorers out of Yangon.</li>
-            <li><strong>Ocean Void</strong>, Vaelora. Living seas of memory around Lymnora.</li>
-            <li><strong>Black Order</strong>, Achronox. Absolute discipline from The Cathedral.</li>
-            <li><strong>Dragon Cypher</strong>, Milorus. Volcanic forges of Benoth.</li>
-            <li><strong>Martian Clan</strong>, Mars. Pioneers of Zylo and Sperastar Haven.</li>
-            <li><strong>Bio Punk</strong>, Gaia Prime. Living architecture of Verdantia Arcology.</li>
-            <li><strong>Apex</strong>, planet unknown. Evolution itself.</li>
-          </ul>
-        </div>
-      </noscript>
-    </section>
-
-    <!-- ============================== RUNWAY ============================= -->
-    <section class="runway" id="runway">
-      <div class="runway-head">
-        <h2 class="rv">Runway 8888</h2>
-        <p class="rv">A silhouette woven from a hundred thousand points of light walks the void. Choose a clan to dress her in its palette.</p>
-      </div>
-      <div class="runway-stage rv">
-        <canvas id="runway-canvas" aria-hidden="true"></canvas>
-        <div class="runway-fallback" id="runway-fallback" aria-hidden="true"></div>
-        <p class="runway-caption" id="runway-caption">Now showing: <strong id="runway-current">ChronoNebula</strong></p>
-      </div>
-      <div class="runway-chips" id="runway-chips" role="group" aria-label="Dress the figure in a clan palette"></div>
-      <noscript><p class="runway-head"><span class="rv">The runway needs JavaScript to walk.</span></p></noscript>
+    <!-- ============================== WINGS ============================== -->
+    <section class="wings" aria-label="Explore">
+      <a class="wing wing-clans rv" href="clans.html">
+        <p class="wing-kicker">The Codex</p>
+        <h2>Thirteen Clans</h2>
+        <p class="wing-note">Every collection begins as a culture. Meet the houses of 8888, world by world, palette by palette.</p>
+        <span class="wing-cta">Open the codex &rarr;</span>
+      </a>
+      <a class="wing wing-runway rv" href="runway.html">
+        <p class="wing-kicker">The Show</p>
+        <h2>Runway 8888</h2>
+        <p class="wing-note">Fourteen couture looks woven live from a hundred thousand points of light, one for each house.</p>
+        <span class="wing-cta">Take your seat &rarr;</span>
+      </a>
     </section>
 
     <!-- =============================== LAB =============================== -->
