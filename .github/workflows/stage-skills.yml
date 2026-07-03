@@ -47,7 +47,7 @@ jobs:
         working-directory: /tmp/stage
         run: |
           mkdir -p proj && cd proj && git init -q .
-          npx -y impeccable@3.2.0 install || echo "impeccable install exited $?"
+          npx -y impeccable@3.2.0 install --providers claude --project || echo "impeccable install exited $?"
           echo "--- what the installer wrote ---"
           find . -maxdepth 4 -not -path '*/.git/*' | sort | head -60
           for d in .claude/skills .agents/skills; do
