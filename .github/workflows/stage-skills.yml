@@ -1,0 +1,73 @@
+# Stage agent skills for review. Fetches from PINNED official sources
+# only and commits the result under skills-review/ — a quarantine
+# directory that Claude Code does NOT load. A human/agent reviews the
+# contents in the diff before anything moves to .claude/skills/.
+#
+# Pinned sources:
+#   - github.com/vercel-labs/agent-skills   (react-best-practices,
+#     composition-patterns — official Vercel agent skills)
+#   - npm: impeccable@3.2.0 official installer by Paul Bakaus
+#     (downloads its compiled skill bundle from impeccable.style)
+name: Stage agent skills
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  stage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Fetch Vercel agent skills (pinned repo)
+        run: |
+          mkdir -p /tmp/stage/out
+          if git clone -q --depth 1 https://github.com/vercel-labs/agent-skills /tmp/stage/vercel; then
+            for name in react-best-practices composition-patterns; do
+              dir=$(find /tmp/stage/vercel -type d -name "$name" -not -path '*/.git/*' | head -1)
+              if [ -n "$dir" ] && [ -f "$dir/SKILL.md" ]; then
+                cp -rL "$dir" "/tmp/stage/out/vercel-$name"
+                echo "staged vercel-$name  (from ${dir#/tmp/stage/vercel/})"
+              else
+                echo "NOT FOUND: $name — repo layout:"
+                find /tmp/stage/vercel -name SKILL.md -not -path '*/.git/*'
+              fi
+            done
+          else
+            echo "COULD NOT CLONE vercel-labs/agent-skills"
+          fi
+
+      - name: Fetch impeccable via its official installer
+        working-directory: /tmp/stage
+        run: |
+          mkdir -p proj && cd proj && git init -q .
+          npx -y impeccable@3.2.0 install || echo "impeccable install exited $?"
+          echo "--- what the installer wrote ---"
+          find . -maxdepth 4 -not -path '*/.git/*' | sort | head -60
+          for d in .claude/skills .agents/skills; do
+            if [ -d "$d" ]; then
+              cp -rL "$d"/. /tmp/stage/out/
+            fi
+          done
+
+      - name: Quarantine under skills-review/
+        run: |
+          rm -rf skills-review
+          mkdir -p skills-review
+          cp -r /tmp/stage/out/. skills-review/ 2>/dev/null || true
+          echo "--- staged tree ---"
+          find skills-review -maxdepth 2 | sort
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add skills-review
+          git commit -m "Stage fetched agent skills under skills-review/ (pending review)" || echo "nothing to commit"
+          git push
