@@ -14,7 +14,6 @@ const titleEl = document.getElementById('look-title');
 const notesEl = document.getElementById('look-notes');
 const materialsEl = document.getElementById('look-materials');
 const swatchesEl = document.getElementById('look-swatches');
-const photoEl = document.getElementById('look-photo');
 
 let atelierApi = null;
 let index = 0;
@@ -52,8 +51,6 @@ function setLook(i, updateHash = true) {
   swatchesEl.innerHTML = look.colors
     ? look.colors.map((hex) => `<li><i style="background:${hex}"></i></li>`).join('')
     : '<li class="look-unknown">Palette unclassified</li>';
-  photoEl.src = look.image;
-  photoEl.alt = `${look.title} — the ${look.house} look, atelier photograph`;
 
   if (atelierApi) atelierApi.setLook(look);
   if (!hasWebGL) {

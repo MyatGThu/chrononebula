@@ -18,6 +18,7 @@ const vertexShader = /* glsl */ `
   uniform float uMorph;    /* 0 = slot A, 1 = slot B */
   uniform float uReveal;
   uniform float uMirror;
+  uniform float uResolve;  /* 0 = living particles, 1 = settled into the photograph */
   uniform float uPixelRatio;
   varying vec3 vColor;
   varying float vRand;
@@ -28,23 +29,30 @@ const vertexShader = /* glsl */ `
     vec3 p = mix(aPos0, aPos1, e);
     vColor = mix(aCol0, aCol1, e);
 
+    float live = 1.0 - uResolve;
+
     /* swirl while in flight between looks (zero at both endpoints) */
     float fl = sin(3.14159 * e);
     p.x += fl * sin(aRand * 40.0 + uTime * 2.1) * 0.4 * aRand;
     p.z += fl * cos(aRand * 31.0 + uTime * 1.7) * 0.35;
     p.y += fl * sin(aRand * 23.0 + uTime) * 0.28;
 
-    /* living fabric: gentle flow, stronger toward the hem */
+    /* living fabric: gentle flow, stronger toward the hem; stills as the
+       weave settles into the photograph */
     float hem = 1.0 - clamp(p.y / 6.0, 0.0, 1.0);
-    p.x += sin(p.y * 1.6 + uTime * 0.9 + aRand * 6.28) * 0.03 * (0.4 + hem);
-    p.z += cos(p.y * 1.2 - uTime * 0.7 + aRand * 4.0) * 0.025 * (0.4 + hem);
+    p.x += sin(p.y * 1.6 + uTime * 0.9 + aRand * 6.28) * 0.03 * (0.4 + hem) * live;
+    p.z += cos(p.y * 1.2 - uTime * 0.7 + aRand * 4.0) * 0.025 * (0.4 + hem) * live;
 
-    /* oscillating turntable: enough to feel the volume, never the back */
-    float rot = sin(uTime * 0.16) * 0.5;
+    /* settling flattens the cylindrical bow onto the picture plane */
+    p.z *= live;
+
+    /* oscillating turntable: enough to feel the volume, never the back;
+       eases to front-facing as the photograph resolves */
+    float rot = sin(uTime * 0.16) * 0.5 * live;
     float cs = cos(rot); float sn = sin(rot);
     p.xz = mat2(cs, -sn, sn, cs) * p.xz;
 
-    p.y += sin(uTime * 1.2) * 0.04;
+    p.y += sin(uTime * 1.2) * 0.04 * live;
     p.y += (1.0 - uReveal) * -0.5;
     p.y *= mix(1.0, -1.0, uMirror);
 
@@ -56,7 +64,8 @@ const vertexShader = /* glsl */ `
 
     vRand = aRand;
     float tw = 0.78 + 0.22 * sin(uTime * (1.0 + aRand * 2.0) + aRand * 40.0);
-    vAlpha = tw * uReveal * mix(1.0, 0.16, uMirror);
+    /* particles hand their light over to the photograph */
+    vAlpha = tw * uReveal * mix(1.0, 0.16, uMirror) * mix(1.0, 0.1, uResolve);
   }
 `;
 
@@ -139,7 +148,8 @@ function sampleImage(img, count) {
 
   const pos = new Float32Array(count * 3);
   const col = new Float32Array(count * 3);
-  if (!weights.length) return { pos, col };  /* blank image: collapse to origin */
+  const aspect = W / H;
+  if (!weights.length) return { pos, col, aspect };  /* blank image: collapse to origin */
 
   const worldW = FIG_HEIGHT * (W / H);
   for (let i = 0; i < count; i++) {
@@ -167,7 +177,7 @@ function sampleImage(img, count) {
     col[i * 3 + 1] = g;
     col[i * 3 + 2] = b;
   }
-  return { pos, col };
+  return { pos, col, aspect };
 }
 
 const imageCache = new Map();
@@ -253,6 +263,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
         uMorph: { value: 0 },
         uReveal: { value: 0 },
         uMirror: { value: mirror },
+        uResolve: { value: 0 },
         uPixelRatio: { value: renderer.getPixelRatio() },
       },
       vertexShader,
@@ -263,6 +274,55 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   const figure = new THREE.Points(geometry, makeFigureMaterial(0));
   const reflection = new THREE.Points(geometry, makeFigureMaterial(1));
   scene.add(figure, reflection);
+
+  /* the photograph the particles settle into: an additively blended
+     plane, so its black void adds nothing and only the outfit shows.
+     A raw shader keeps its colors byte-identical to the sampled points. */
+  function makePhotoMaterial() {
+    return new THREE.ShaderMaterial({
+      transparent: true,
+      depthWrite: false,
+      side: THREE.DoubleSide,
+      /* pure RGB addition that leaves destination alpha untouched — the
+         canvas is composited over the page, so writing alpha would make
+         the plane's black void occlude the CSS backdrop as a rectangle */
+      blending: THREE.CustomBlending,
+      blendEquation: THREE.AddEquation,
+      blendSrc: THREE.OneFactor,
+      blendDst: THREE.OneFactor,
+      blendEquationAlpha: THREE.AddEquation,
+      blendSrcAlpha: THREE.ZeroFactor,
+      blendDstAlpha: THREE.OneFactor,
+      uniforms: {
+        uMap: { value: null },
+        uOpacity: { value: 0 },
+      },
+      vertexShader: /* glsl */ `
+        varying vec2 vUv;
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: /* glsl */ `
+        uniform sampler2D uMap;
+        uniform float uOpacity;
+        varying vec2 vUv;
+        void main() {
+          vec3 col = texture2D(uMap, vUv).rgb;
+          /* crush the JPEG noise floor so the plane's black void adds
+             nothing over the stage */
+          col = max(col - 0.05, 0.0) / 0.95;
+          gl_FragColor = vec4(col * uOpacity, 0.0);
+        }
+      `,
+    });
+  }
+  const photo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), makePhotoMaterial());
+  const photoMirror = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), makePhotoMaterial());
+  photoMirror.scale.y = -1;
+  photo.visible = photoMirror.visible = false;
+  scene.add(photo, photoMirror);
 
   const accent = new THREE.Color('#00ffb3');
   const accentTarget = new THREE.Color('#00ffb3');
@@ -307,10 +367,50 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   let time = 0;
   let morph = 0;              /* rendered value */
   let morphTarget = 0;        /* 0 = slot A front, 1 = slot B front */
+  let resolve = 0;            /* rendered value */
+  let resolveTarget = 0;      /* 1 = settled into the photograph */
+  let hold = 0;               /* seconds the assembled weave has been held */
+  let pending = null;         /* next look, sampled and waiting for the stage */
   let firstLook = true;
   let lookToken = 0;
   const clock = new THREE.Clock();
   const REDUCED_TIME = 4.2;
+  const HOLD_SECONDS = reduced ? 0.2 : 1.1;
+
+  function applyPending() {
+    const { pos, col, img, aspect } = pending;
+    pending = null;
+    hold = 0;
+    if (firstLook) {
+      /* the entrance: slot A holds the scattered nebula, so morphing
+         to slot B assembles the dust into the outfit */
+      geometry.attributes.aPos1.array.set(pos);
+      geometry.attributes.aPos1.needsUpdate = true;
+      geometry.attributes.aCol1.array.set(col);
+      geometry.attributes.aCol1.needsUpdate = true;
+      morphTarget = 1;
+      firstLook = false;
+    } else {
+      const toB = morphTarget < 0.5;       /* write into the back slot */
+      geometry.attributes[toB ? 'aPos1' : 'aPos0'].array.set(pos);
+      geometry.attributes[toB ? 'aPos1' : 'aPos0'].needsUpdate = true;
+      geometry.attributes[toB ? 'aCol1' : 'aCol0'].array.set(col);
+      geometry.attributes[toB ? 'aCol1' : 'aCol0'].needsUpdate = true;
+      morphTarget = toB ? 1 : 0;
+    }
+    /* stage the photograph the weave will settle into */
+    const tex = new THREE.Texture(img);
+    tex.needsUpdate = true;
+    for (const mesh of [photo, photoMirror]) {
+      const old = mesh.material.uniforms.uMap.value;
+      mesh.material.uniforms.uMap.value = tex;
+      if (old && old !== tex) old.dispose();
+    }
+    const w = FIG_HEIGHT * aspect;
+    photo.scale.set(w, FIG_HEIGHT, 1);
+    photoMirror.scale.set(w, -FIG_HEIGHT, 1);
+    photo.visible = photoMirror.visible = true;
+  }
 
   function frame() {
     if (!running) return;
@@ -321,13 +421,37 @@ export function initAtelier(canvas, { reduced = false } = {}) {
 
     reveal += (1 - reveal) * Math.min(1, dt * 1.6);
     morph += (morphTarget - morph) * Math.min(1, dt * (reduced ? 8 : 2.2));
+    /* dissolving back to particles is quicker than settling into the shot */
+    const rk = resolveTarget > resolve ? 1.7 : 3.4;
+    resolve += (resolveTarget - resolve) * Math.min(1, dt * (reduced ? 8 : rk));
     accent.lerp(accentTarget, 1 - Math.exp(-dt * 3.2));
+
+    /* choreography: dissolve -> reweave -> hold -> settle into the photo */
+    if (pending && resolve < 0.06) applyPending();
+    else if (!pending && resolveTarget < 1 && Math.abs(morph - morphTarget) < 0.04) {
+      hold += dt;
+      if (hold > HOLD_SECONDS) resolveTarget = 1;
+    }
 
     for (const mat of [figure.material, reflection.material]) {
       mat.uniforms.uTime.value = t;
       mat.uniforms.uReveal.value = reveal;
       mat.uniforms.uMorph.value = morph;
+      mat.uniforms.uResolve.value = resolve;
     }
+
+    /* the photograph shares the weave's easing turntable and breath so
+       the settle is seamless */
+    const live = 1 - resolve;
+    const rot = Math.sin(t * 0.16) * 0.5 * live;
+    const bob = Math.sin(t * 1.2) * 0.04 * live;
+    const midY = FIG_HEIGHT / 2 + 0.05;
+    photo.rotation.y = photoMirror.rotation.y = rot;
+    photo.position.y = midY + bob;
+    photoMirror.position.y = -(midY + bob);
+    photo.material.uniforms.uOpacity.value = resolve * reveal;
+    photoMirror.material.uniforms.uOpacity.value = resolve * reveal * 0.1;
+
     floor.material.uniforms.uTime.value = t;
 
     pointer.x += (pointer.tx - pointer.x) * 0.05;
@@ -363,26 +487,14 @@ export function initAtelier(canvas, { reduced = false } = {}) {
     setLook(look) {
       accentTarget.set(brightest(look.colors));
       const token = ++lookToken;
+      /* the settled photograph dissolves back into particles while the
+         next look loads; applyPending() fires once the stage is dust */
+      resolveTarget = 0;
+      hold = 0;
       loadImage(look.image).then((img) => {
         if (token !== lookToken) return;     /* superseded by a later pick */
-        const { pos, col } = sampleImage(img, COUNT);
-        if (firstLook) {
-          /* the entrance: slot A holds the scattered nebula, so morphing
-             to slot B assembles the dust into the outfit */
-          geometry.attributes.aPos1.array.set(pos);
-          geometry.attributes.aPos1.needsUpdate = true;
-          geometry.attributes.aCol1.array.set(col);
-          geometry.attributes.aCol1.needsUpdate = true;
-          morphTarget = 1;
-          firstLook = false;
-          return;
-        }
-        const toB = morphTarget < 0.5;       /* write into the back slot */
-        geometry.attributes[toB ? 'aPos1' : 'aPos0'].array.set(pos);
-        geometry.attributes[toB ? 'aPos1' : 'aPos0'].needsUpdate = true;
-        geometry.attributes[toB ? 'aCol1' : 'aCol0'].array.set(col);
-        geometry.attributes[toB ? 'aCol1' : 'aCol0'].needsUpdate = true;
-        morphTarget = toB ? 1 : 0;
+        const { pos, col, aspect } = sampleImage(img, COUNT);
+        pending = { pos, col, img, aspect };
       }).catch(() => {});                    /* missing image: keep current */
     },
     destroy() {
@@ -394,6 +506,11 @@ export function initAtelier(canvas, { reduced = false } = {}) {
       geometry.dispose();
       figure.material.dispose();
       reflection.material.dispose();
+      for (const mesh of [photo, photoMirror]) {
+        mesh.geometry.dispose();
+        if (mesh.material.uniforms.uMap.value) mesh.material.uniforms.uMap.value.dispose();
+        mesh.material.dispose();
+      }
       floor.geometry.dispose();
       floor.material.dispose();
       renderer.dispose();
