@@ -4,6 +4,8 @@ A luxury futuristic website for the ChronoNebula universe (8888 AD): eight
 planets, thirteen clans, an interactive 3D galaxy map, and a particle-couture
 runway figure that dresses itself in each clan's official palette.
 
+**Live site:** https://myatgthu.github.io/chrononebula/
+
 Created by **Zan Ye Htet** (creative identity: **ZXXNGOD**).
 
 ## Stack
