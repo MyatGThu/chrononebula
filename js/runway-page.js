@@ -43,6 +43,17 @@ function setLook(i, updateHash = true) {
     c.setAttribute('aria-pressed', String(c.dataset.look === look.id));
   });
 
+  /* when the rail scrolls (phones), keep the chosen house centered */
+  if (chips.scrollWidth > chips.clientWidth) {
+    const active = chips.querySelector(`[data-look="${look.id}"]`);
+    if (active) {
+      chips.scrollTo({
+        left: active.offsetLeft - chips.clientWidth / 2 + active.offsetWidth / 2,
+        behavior: reducedMotion.matches ? 'auto' : 'smooth',
+      });
+    }
+  }
+
   counter.textContent = `Look ${pad(index + 1)} / ${pad(LOOKS.length)}`;
   houseEl.textContent = look.house;
   titleEl.textContent = look.title;

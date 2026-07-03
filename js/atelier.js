@@ -350,16 +350,19 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   if (!reduced) window.addEventListener('pointermove', onPointer, { passive: true });
 
   function resize() {
-    const holder = canvas.parentElement;
-    const w = holder.clientWidth;
-    const h = holder.clientHeight;
+    /* measure the canvas itself: on small screens the stage is a flex
+       column (canvas + controls + panel), so the parent is much taller
+       than the canvas and would squash the framing */
+    const w = canvas.clientWidth;
+    const h = canvas.clientHeight;
+    if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
   }
   resize();
   const ro = new ResizeObserver(resize);
-  ro.observe(canvas.parentElement);
+  ro.observe(canvas);
 
   let running = true;
   let rafId = 0;

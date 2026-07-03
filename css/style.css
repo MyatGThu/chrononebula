@@ -1047,8 +1047,8 @@ a { color: var(--ink); }
   #atelier-canvas {
     position: relative;
     order: 1;
-    height: 54vh;
-    min-height: 360px;
+    height: 58vh;
+    min-height: 380px;
   }
   .atelier-hud {
     position: static;
@@ -1103,6 +1103,23 @@ a { color: var(--ink); }
 }
 @media (hover: hover) and (pointer: fine) {
   .runway-chip:hover { color: var(--ink); border-color: var(--ink-dim); }
+}
+
+/* phones: the house rail becomes one swipeable row */
+@media (max-width: 760px) {
+  .runway-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding: 1.2rem var(--pad-x) 0.5rem;
+  }
+  .runway-chips::-webkit-scrollbar { display: none; }
+  .runway-chip {
+    flex: none;
+    scroll-snap-align: center;
+  }
 }
 
 /* --------------------------------------------------------------------------
