@@ -47,15 +47,16 @@ runway.html         Runway 8888: a 3D couture look per house
 css/style.css       design system (dark, Nebula Emerald accent)
 css/fonts.css       self-hosted @font-face rules
 js/data.js          world bible data: planets, clans, official palettes
-js/looks.js         Runway 8888 looks: outfit copy + silhouette params
+js/looks.js         Runway 8888 looks: outfit copy + atelier photo refs
 js/common.js        shared chrome: nav, reveals, footer
 js/main.js          home orchestration and lazy-loading
 js/clans.js         clans page renderer
 js/runway-page.js   runway page controller
 js/hero.js          hero particle field (WebGL)
 js/galaxy.js        interactive universe map (WebGL)
-js/atelier.js       parametric particle-couture engine (WebGL)
+js/atelier.js       image-woven particle-couture engine (WebGL)
 js/lab.js           AI Lab canvas material studies (2D)
 assets/             imagery + fonts
+assets/outfits/     couture photographs, one per house (AI-generated)
 vendor/             three.module.min.js
 ```

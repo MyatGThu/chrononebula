@@ -1006,6 +1006,21 @@ a { color: var(--ink); }
   margin-bottom: 0;
 }
 .look-swatches { margin-top: 0.9rem; }
+.look-photo-wrap { margin: 1.1rem 0 0; }
+.look-photo {
+  width: 100%;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--line-soft);
+  background: #000;
+}
+.look-photo-wrap figcaption {
+  color: var(--ink-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
 .look-swatches li { padding: 0.28rem 0.34rem; }
 .look-swatches .look-unknown {
   padding: 0.28rem 0.8rem;
