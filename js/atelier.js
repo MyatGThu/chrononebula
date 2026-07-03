@@ -29,7 +29,9 @@ const vertexShader = /* glsl */ `
     vec3 p = mix(aPos0, aPos1, e);
     vColor = mix(aCol0, aCol1, e);
 
-    float live = 1.0 - uResolve;
+    /* eased settling so motion drains out gently instead of stopping */
+    float settle = uResolve * uResolve * (3.0 - 2.0 * uResolve);
+    float live = 1.0 - settle;
 
     /* swirl while in flight between looks (zero at both endpoints) */
     float fl = sin(3.14159 * e);
@@ -59,13 +61,16 @@ const vertexShader = /* glsl */ `
     vec4 mv = modelViewMatrix * vec4(p, 1.0);
     gl_Position = projectionMatrix * mv;
 
+    /* points condense as they settle into the pixels they came from */
     float size = mix(1.5, 2.7, aRand);
-    gl_PointSize = size * uPixelRatio * (7.5 / -mv.z);
+    gl_PointSize = size * uPixelRatio * (7.5 / -mv.z) * mix(1.0, 0.72, settle);
 
     vRand = aRand;
     float tw = 0.78 + 0.22 * sin(uTime * (1.0 + aRand * 2.0) + aRand * 40.0);
-    /* particles hand their light over to the photograph */
-    vAlpha = tw * uReveal * mix(1.0, 0.16, uMirror) * mix(1.0, 0.1, uResolve);
+    /* particles linger while the photograph's highlights crystallize,
+       then hand their light over as its shadows fill in */
+    vAlpha = tw * uReveal * mix(1.0, 0.16, uMirror)
+           * mix(1.0, 0.08, smoothstep(0.1, 0.85, uResolve));
   }
 `;
 
@@ -295,7 +300,8 @@ export function initAtelier(canvas, { reduced = false } = {}) {
       blendDstAlpha: THREE.OneFactor,
       uniforms: {
         uMap: { value: null },
-        uOpacity: { value: 0 },
+        uProgress: { value: 0 },
+        uStrength: { value: 1 },
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
@@ -306,14 +312,21 @@ export function initAtelier(canvas, { reduced = false } = {}) {
       `,
       fragmentShader: /* glsl */ `
         uniform sampler2D uMap;
-        uniform float uOpacity;
+        uniform float uProgress;
+        uniform float uStrength;
         varying vec2 vUv;
         void main() {
           vec3 col = texture2D(uMap, vUv).rgb;
           /* crush the JPEG noise floor so the plane's black void adds
              nothing over the stage */
           col = max(col - 0.05, 0.0) / 0.95;
-          gl_FragColor = vec4(col * uOpacity, 0.0);
+          /* the photograph materializes by luminance: its brightest
+             threads crystallize first, shadows fill in last (and the
+             reverse when dissolving back to dust) */
+          float l = clamp(dot(col, vec3(0.299, 0.587, 0.114)) * 1.7, 0.0, 1.0);
+          float start = (1.0 - l) * 0.62;
+          float gate = smoothstep(start, start + 0.38, uProgress);
+          gl_FragColor = vec4(col * gate * uStrength, 0.0);
         }
       `,
     });
@@ -321,6 +334,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   const photo = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), makePhotoMaterial());
   const photoMirror = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), makePhotoMaterial());
   photoMirror.scale.y = -1;
+  photoMirror.material.uniforms.uStrength.value = 0.1;
   photo.visible = photoMirror.visible = false;
   scene.add(photo, photoMirror);
 
@@ -378,7 +392,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   let lookToken = 0;
   const clock = new THREE.Clock();
   const REDUCED_TIME = 4.2;
-  const HOLD_SECONDS = reduced ? 0.2 : 1.1;
+  const HOLD_SECONDS = reduced ? 0.2 : 0.7;
 
   function applyPending() {
     const { pos, col, img, aspect } = pending;
@@ -424,8 +438,8 @@ export function initAtelier(canvas, { reduced = false } = {}) {
 
     reveal += (1 - reveal) * Math.min(1, dt * 1.6);
     morph += (morphTarget - morph) * Math.min(1, dt * (reduced ? 8 : 2.2));
-    /* dissolving back to particles is quicker than settling into the shot */
-    const rk = resolveTarget > resolve ? 1.7 : 3.4;
+    /* settling is unhurried; dissolving back to particles is quicker */
+    const rk = resolveTarget > resolve ? 1.05 : 2.4;
     resolve += (resolveTarget - resolve) * Math.min(1, dt * (reduced ? 8 : rk));
     accent.lerp(accentTarget, 1 - Math.exp(-dt * 3.2));
 
@@ -444,16 +458,17 @@ export function initAtelier(canvas, { reduced = false } = {}) {
     }
 
     /* the photograph shares the weave's easing turntable and breath so
-       the settle is seamless */
-    const live = 1 - resolve;
+       the settle is seamless (same eased curve as the vertex shader) */
+    const settle = resolve * resolve * (3 - 2 * resolve);
+    const live = 1 - settle;
     const rot = Math.sin(t * 0.16) * 0.5 * live;
     const bob = Math.sin(t * 1.2) * 0.04 * live;
     const midY = FIG_HEIGHT / 2 + 0.05;
     photo.rotation.y = photoMirror.rotation.y = rot;
     photo.position.y = midY + bob;
     photoMirror.position.y = -(midY + bob);
-    photo.material.uniforms.uOpacity.value = resolve * reveal;
-    photoMirror.material.uniforms.uOpacity.value = resolve * reveal * 0.1;
+    photo.material.uniforms.uProgress.value = resolve * reveal;
+    photoMirror.material.uniforms.uProgress.value = resolve * reveal;
 
     floor.material.uniforms.uTime.value = t;
 

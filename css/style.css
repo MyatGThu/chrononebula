@@ -334,8 +334,10 @@ a { color: var(--ink); }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 32%;
-  filter: saturate(0.82) brightness(0.9);
+  /* Melina stands in the right third: bias the crop so she survives
+     portrait framings */
+  object-position: 68% 30%;
+  filter: saturate(0.88) brightness(0.94);
 }
 .hero-canvas {
   position: absolute;
