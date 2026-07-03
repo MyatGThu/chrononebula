@@ -214,6 +214,27 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   const colB = new Float32Array(COUNT * 3);
   const rand = new Float32Array(COUNT);
   for (let i = 0; i < COUNT; i++) rand[i] = Math.random();
+
+  /* slot A opens as a scattered nebula — dim emerald and silver dust
+     filling the stage — so the first look ASSEMBLES out of it */
+  for (let i = 0; i < COUNT; i++) {
+    const r = 5 + Math.random() * 10;
+    const th = Math.random() * Math.PI * 2;
+    const ph = Math.acos(2 * Math.random() - 1);
+    posA[i * 3] = Math.sin(ph) * Math.cos(th) * r;
+    posA[i * 3 + 1] = Math.random() * 8.5 - 0.5;
+    posA[i * 3 + 2] = Math.sin(ph) * Math.sin(th) * r * 0.6 - 1.5;
+    const t = Math.random();
+    if (t > 0.8) {
+      /* silver-white grains */
+      colA[i * 3] = colA[i * 3 + 1] = colA[i * 3 + 2] = 0.35 + t * 0.3;
+    } else {
+      /* nebula emerald dust */
+      colA[i * 3] = 0.02 + t * 0.06;
+      colA[i * 3 + 1] = 0.3 + t * 0.45;
+      colA[i * 3 + 2] = 0.24 + t * 0.3;
+    }
+  }
   geometry.setAttribute('position', new THREE.BufferAttribute(new Float32Array(COUNT * 3), 3));
   geometry.setAttribute('aPos0', new THREE.BufferAttribute(posA, 3));
   geometry.setAttribute('aPos1', new THREE.BufferAttribute(posB, 3));
@@ -346,13 +367,13 @@ export function initAtelier(canvas, { reduced = false } = {}) {
         if (token !== lookToken) return;     /* superseded by a later pick */
         const { pos, col } = sampleImage(img, COUNT);
         if (firstLook) {
-          /* both slots start on the opening look; no morph */
-          for (const [posAttr, colAttr] of [['aPos0', 'aCol0'], ['aPos1', 'aCol1']]) {
-            geometry.attributes[posAttr].array.set(pos);
-            geometry.attributes[posAttr].needsUpdate = true;
-            geometry.attributes[colAttr].array.set(col);
-            geometry.attributes[colAttr].needsUpdate = true;
-          }
+          /* the entrance: slot A holds the scattered nebula, so morphing
+             to slot B assembles the dust into the outfit */
+          geometry.attributes.aPos1.array.set(pos);
+          geometry.attributes.aPos1.needsUpdate = true;
+          geometry.attributes.aCol1.array.set(col);
+          geometry.attributes.aCol1.needsUpdate = true;
+          morphTarget = 1;
           firstLook = false;
           return;
         }
