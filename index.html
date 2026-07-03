@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ChronoNebula AI × Fashion · 8888 AD</title>
+  <meta name="description" content="ChronoNebula AI × Fashion is a luxury futuristic universe set in 8888 AD, where fashion, AI, architecture, and storytelling merge. Explore eight planets, thirteen clans, and couture woven from light.">
+  <meta property="og:title" content="ChronoNebula AI × Fashion">
+  <meta property="og:description" content="Fashion is no longer clothing. Fashion is civilization. Enter the universe of 8888 AD.">
+  <meta property="og:url" content="https://myatgthu.github.io/chrononebula/">
+  <meta property="og:image" content="https://myatgthu.github.io/chrononebula/assets/cindra-monolith.jpg">
+  <meta name="theme-color" content="#050505">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%2300FFB3' stroke-width='6'/%3E%3Ccircle cx='50' cy='16' r='9' fill='%2300FFB3'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/cinzel-700.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jost-300.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="assets/fonts/jost-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/style.css">
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="nav" id="nav">
+    <a class="nav-brand" href="#top" aria-label="ChronoNebula, back to top">
+      <span class="nav-sigil" aria-hidden="true"></span>
+      <span class="nav-word">ChronoNebula</span>
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Primary">
+      <a href="#universe">Universe</a>
+      <a href="#clans">Clans</a>
+      <a href="#runway">Runway</a>
+      <a href="#lab">AI Lab</a>
+    </nav>
+    <button class="nav-toggle" id="nav-toggle" aria-expanded="false" aria-controls="nav-links" aria-label="Menu">
+      <span></span><span></span>
+    </button>
+  </header>
+
+  <main id="main">
+
+    <!-- ============================== HERO ============================== -->
+    <section class="hero" id="top">
+      <div class="hero-media" aria-hidden="true">
+        <img class="hero-img" src="assets/cindra-monolith.jpg" alt="" fetchpriority="high"
+             width="1536" height="1024">
+        <canvas class="hero-canvas" id="hero-canvas"></canvas>
+        <div class="hero-grade"></div>
+      </div>
+      <div class="hero-copy">
+        <h1 class="hero-title">
+          <span class="hero-line"><span>Chrono</span></span>
+          <span class="hero-line hero-line-2"><span>Nebula</span></span>
+        </h1>
+        <p class="hero-sub"><span class="hero-ai">AI × Fashion</span> <span class="hero-year">8888 AD</span></p>
+        <p class="hero-tag">Fashion is no longer clothing. Fashion is civilization.</p>
+        <a class="btn btn-solid hero-cta" href="#universe">Enter the universe</a>
+      </div>
+    </section>
+
+    <!-- ============================ MANIFESTO ============================ -->
+    <section class="manifesto" id="manifesto">
+      <p class="manifesto-lede rv">
+        In the year 8888, the great houses are not brands. They are
+        <em>civilizations</em>. Thirteen clans across eight worlds weave
+        identity from memory, moonlight, machine intelligence, and fire,
+        and every garment is a treaty between the past and the future.
+      </p>
+      <p class="manifesto-note rv">
+        ChronoNebula is a universe told through couture, film, games,
+        architecture, and music. This is its atlas.
+      </p>
+    </section>
+
+    <!-- ============================ UNIVERSE ============================= -->
+    <section class="universe" id="universe">
+      <div class="universe-head">
+        <h2 class="rv">The Universe</h2>
+        <p class="universe-hint rv">Eight worlds orbit the Chrono Core. Drag to turn the map, select a planet to meet its people.</p>
+      </div>
+      <div class="universe-stage">
+        <canvas id="galaxy-canvas" aria-hidden="true"></canvas>
+        <div class="universe-labels" id="universe-labels" aria-hidden="true"></div>
+        <aside class="glass universe-panel" id="universe-panel">
+          <div class="universe-planets" id="universe-planets" role="group" aria-label="Planets"></div>
+          <div class="universe-info" id="universe-info"></div>
+          <p class="sr-only" role="status" id="universe-status"></p>
+          <noscript><p class="universe-hint">The interactive map needs JavaScript. The thirteen clans are listed below.</p></noscript>
+        </aside>
+      </div>
+    </section>
+
+    <!-- ============================== CLANS ============================== -->
+    <section class="clans" id="clans">
+      <div class="clans-head">
+        <h2 class="rv">Thirteen Clans</h2>
+        <p class="rv">Every collection begins as a culture. These are the houses of 8888, each with its own world, its own law, and its own official palette.</p>
+      </div>
+
+      <article class="feature feature-chronoa rv">
+        <figure class="feature-media">
+          <img src="assets/queen-ani-thu-zard.jpg"
+               alt="Queen Ani Thu Zard of the Black Chronoa, enthroned in black and gold beneath the sigils of the First Monolith"
+               loading="lazy" width="841" height="1412">
+        </figure>
+        <div class="feature-copy">
+          <p class="feature-kicker">House of the First Monolith</p>
+          <h3>Black Chronoa</h3>
+          <blockquote class="feature-quote">
+            <p>&ldquo;Memory shapes destiny. We endure, so that others may become.&rdquo;</p>
+            <footer>Queen Ani Thu Zard, Keeper of the First Monolith</footer>
+          </blockquote>
+          <p class="feature-body">The central clan of the universe. From the capital of Cindra on Achronox, they guard the First Monolith and dress in void black threaded with chrono gold.</p>
+          <ul class="swatches" data-clan="black-chronoa"></ul>
+        </div>
+      </article>
+
+      <article class="feature feature-nova rv">
+        <figure class="feature-media">
+          <img src="assets/white-nova.jpg"
+               alt="A White Nova priestess in luminous white robes before the crystal spires of Nova Nexus on Jenova"
+               loading="lazy" width="771" height="1024">
+        </figure>
+        <div class="feature-copy">
+          <p class="feature-kicker">Architects of Light</p>
+          <h3>White Nova</h3>
+          <blockquote class="feature-quote">
+            <p>&ldquo;From knowledge comes light. From light comes tomorrow.&rdquo;</p>
+            <footer>NEXUS, Planetary AI of Jenova</footer>
+          </blockquote>
+          <p class="feature-body">The most advanced civilization in the universe. Their couture is pristine white and electric blue, cut like the towers of Nova Nexus: pure, geometric, timeless.</p>
+          <ul class="swatches" data-clan="white-nova"></ul>
+        </div>
+      </article>
+
+      <ul class="ledger" id="clan-ledger"></ul>
+      <noscript>
+        <div class="noscript-clans">
+          <p>JavaScript is off, so here are the houses in brief:</p>
+          <ul>
+            <li><strong>Black Chronoa</strong>, Achronox. Memory and discipline; guardians of the First Monolith.</li>
+            <li><strong>White Nova</strong>, Jenova. Technology, AI, and logic from Nova Nexus.</li>
+            <li><strong>Rogue Lunaris</strong>, Jenova. Moonlight and ancient wisdom from Moonlight Luna.</li>
+            <li><strong>Lumina</strong>, Chrono. Keepers of time and balance in Zemo.</li>
+            <li><strong>Solar Punk</strong>, Earth. Eco-cities of Neon Metro.</li>
+            <li><strong>Cyberpunk</strong>, Earth. The independent networks of Neon Abyss.</li>
+            <li><strong>Chrono Punk</strong>, Earth. Temporal explorers out of Yangon.</li>
+            <li><strong>Ocean Void</strong>, Vaelora. Living seas of memory around Lymnora.</li>
+            <li><strong>Black Order</strong>, Achronox. Absolute discipline from The Cathedral.</li>
+            <li><strong>Dragon Cypher</strong>, Milorus. Volcanic forges of Benoth.</li>
+            <li><strong>Martian Clan</strong>, Mars. Pioneers of Zylo and Sperastar Haven.</li>
+            <li><strong>Bio Punk</strong>, Gaia Prime. Living architecture of Verdantia Arcology.</li>
+            <li><strong>Apex</strong>, planet unknown. Evolution itself.</li>
+          </ul>
+        </div>
+      </noscript>
+    </section>
+
+    <!-- ============================== RUNWAY ============================= -->
+    <section class="runway" id="runway">
+      <div class="runway-head">
+        <h2 class="rv">Runway 8888</h2>
+        <p class="rv">A silhouette woven from a hundred thousand points of light walks the void. Choose a clan to dress her in its palette.</p>
+      </div>
+      <div class="runway-stage rv">
+        <canvas id="runway-canvas" aria-hidden="true"></canvas>
+        <div class="runway-fallback" id="runway-fallback" aria-hidden="true"></div>
+        <p class="runway-caption" id="runway-caption">Now showing: <strong id="runway-current">ChronoNebula</strong></p>
+      </div>
+      <div class="runway-chips" id="runway-chips" role="group" aria-label="Dress the figure in a clan palette"></div>
+      <noscript><p class="runway-head"><span class="rv">The runway needs JavaScript to walk.</span></p></noscript>
+    </section>
+
+    <!-- =============================== LAB =============================== -->
+    <section class="lab" id="lab">
+      <div class="lab-head">
+        <h2 class="rv">The AI Lab</h2>
+        <p class="rv">Where the universe is engineered: living fabric, chrono energy, and nano-weave materials designed with machine intelligence.</p>
+      </div>
+      <div class="lab-grid">
+        <figure class="lab-cell lab-canvas rv" data-sim="fabric">
+          <canvas aria-hidden="true"></canvas>
+          <figcaption>
+            <strong>Living Fabric</strong>
+            <span>Threads that rearrange themselves around the wearer, simulated as a flow field.</span>
+          </figcaption>
+        </figure>
+        <figure class="lab-cell lab-canvas rv" data-sim="chrono">
+          <canvas aria-hidden="true"></canvas>
+          <figcaption>
+            <strong>Chrono Energy</strong>
+            <span>The pulse of planet Chrono, rendered as rings of time.</span>
+          </figcaption>
+        </figure>
+        <figure class="lab-cell lab-canvas rv" data-sim="weave">
+          <canvas aria-hidden="true"></canvas>
+          <figcaption>
+            <strong>Nano-Weave</strong>
+            <span>A lattice loomed at the scale of atoms, one thread per heartbeat.</span>
+          </figcaption>
+        </figure>
+        <div class="lab-cell lab-text rv">
+          <h3>Design, assisted</h3>
+          <p>Every clan collection is drafted with AI trained on its world: NEXUS sketches for Jenova, the Tide Council dreams for Vaelora. The atelier finishes by hand.</p>
+        </div>
+        <div class="lab-cell lab-text lab-text-alt rv">
+          <h3>Architecture to wear</h3>
+          <p>Monoliths, arcologies, and moon temples scaled down to the body. The city is the garment; the garment is the city.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============================= EPILOGUE ============================ -->
+    <section class="epilogue">
+      <p class="epilogue-line rv">The future of style. The language of worlds.</p>
+      <a class="btn btn-ghost rv" href="#top">Return to the surface</a>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-grid">
+      <div>
+        <p class="footer-brand">ChronoNebula <span>AI × Fashion</span></p>
+        <p class="footer-note">A multimedia universe spanning fashion, films, games, animation, architecture, and music. Set in 8888 AD.</p>
+      </div>
+      <div class="footer-meta">
+        <p>Created by Zan Ye Htet</p>
+        <p>Creative identity: ZXXNGOD</p>
+        <p id="footer-year"></p>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
