@@ -741,10 +741,37 @@ a { color: var(--ink); }
 
 .clan-card {
   position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+  gap: clamp(1.5rem, 4vw, 3.5rem);
+  align-items: center;
   border-bottom: 1px solid var(--line);
   padding: clamp(2.4rem, 6vh, 3.8rem) 0.9rem;
   scroll-margin-top: 84px;
 }
+.clan-card-media {
+  margin: 0;
+  border-radius: var(--r-panel);
+  overflow: hidden;
+  align-self: stretch;
+}
+.clan-card-media::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.clan-card-media img {
+  width: 100%;
+  height: 100%;
+  min-height: 280px;
+  object-fit: cover;
+  display: block;
+}
+/* alternate plate sides for rhythm down the codex */
+.clan-card:nth-child(even) .clan-card-media { order: 2; }
 .clan-card::before {
   content: '';
   position: absolute;
@@ -838,7 +865,15 @@ a { color: var(--ink); }
   .feature-nova { grid-template-columns: 1fr; }
   .feature-nova .feature-media { order: 0; }
   .feature-media img { height: clamp(16rem, 42vh, 24rem); }
-  .clan-card { padding: 1.9rem 0.4rem 2.2rem; }
+  .clan-card {
+    grid-template-columns: 1fr;
+    padding: 1.9rem 0.4rem 2.2rem;
+  }
+  .clan-card:nth-child(even) .clan-card-media { order: 0; }
+  .clan-card-media img {
+    min-height: 0;
+    height: clamp(11rem, 32vw, 15rem);
+  }
   .clan-card-body { grid-template-columns: 1fr; }
 }
 

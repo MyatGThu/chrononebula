@@ -27,6 +27,24 @@ indexNav.innerHTML = CLANS
   .map((clan) => `<a class="clan-index-chip" href="#clan-${clan.id}">${clan.name}</a>`)
   .join('');
 
+/* the codex plates: one establishing shot per world, alt text in the
+   voice of the atlas */
+const SCENES = {
+  'black-chronoa': 'Cindra: the First Monolith rising over the ceremonial city, chrono-gold seams alight',
+  'white-nova': 'Nova Nexus: white crystalline towers veined with nova-core cyan',
+  'rogue-lunaris': 'Moonlight Luna: the temple city beneath the eclipsed moon, crimson banners in pearl light',
+  'lumina': 'Zemo: rings of time orbiting the white-and-gold spires',
+  'solar-punk': 'Neon Metro: gardens climbing the glass towers at golden hour',
+  'cyberpunk': 'Neon Abyss: a rain-slick canyon of cyan and magenta light',
+  'chrono-punk': 'Yangon: the temporal bazaar where salvaged centuries collide',
+  'ocean-void': 'Lymnora: the bioluminescent city beneath the living sea',
+  'black-order': 'The Cathedral: an obsidian fortress of absolute symmetry',
+  'dragon-cypher': 'Benoth: the forge-city in the caldera, rivers of magma between the works',
+  'martian-clan': 'Zylo: a terraformed canyon settlement under a rust sunset',
+  'bio-punk': 'Verdantia Arcology: the city grown from living organisms, in bloom',
+  'apex': 'The unwritten world of the Apex: a prismatic monolith in the void',
+};
+
 /* the codex */
 const codex = document.getElementById('clan-codex');
 
@@ -45,24 +63,30 @@ for (const clan of CLANS) {
     : `<p class="summary">Palette unclassified. The Apex reveal themselves only to the future.</p>`;
 
   card.innerHTML = `
-    <header class="clan-card-head">
-      <p class="clan-kicker">${clan.planet} · ${clan.capital}</p>
-      <h2>${clan.name}</h2>
-      <p class="clan-essence">${clan.essence}</p>
-    </header>
-    <div class="clan-card-body">
-      <div>
-        ${clan.motto ? `<p class="motto">&ldquo;${clan.motto}&rdquo;</p>` : ''}
-        <p class="summary">${clan.summary}</p>
-      </div>
-      <div>
-        <dl>
-          <dt>Planet</dt><dd>${clan.planet}</dd>
-          <dt>Capital</dt><dd>${clan.capital}</dd>
-          <dt>Leader</dt><dd>${clan.leader}</dd>
-        </dl>
-        ${paletteBlock}
-        <a class="clan-runway-link" href="runway.html#look-${clan.id}">See the ${clan.name} look on Runway 8888 &rarr;</a>
+    <figure class="clan-card-media">
+      <img src="assets/clans/${clan.id}.jpg" alt="${SCENES[clan.id] ?? ''}"
+           loading="lazy" width="960" height="540">
+    </figure>
+    <div class="clan-card-content">
+      <header class="clan-card-head">
+        <p class="clan-kicker">${clan.planet} · ${clan.capital}</p>
+        <h2>${clan.name}</h2>
+        <p class="clan-essence">${clan.essence}</p>
+      </header>
+      <div class="clan-card-body">
+        <div>
+          ${clan.motto ? `<p class="motto">&ldquo;${clan.motto}&rdquo;</p>` : ''}
+          <p class="summary">${clan.summary}</p>
+        </div>
+        <div>
+          <dl>
+            <dt>Planet</dt><dd>${clan.planet}</dd>
+            <dt>Capital</dt><dd>${clan.capital}</dd>
+            <dt>Leader</dt><dd>${clan.leader}</dd>
+          </dl>
+          ${paletteBlock}
+          <a class="clan-runway-link" href="runway.html#look-${clan.id}">See the ${clan.name} look on Runway 8888 &rarr;</a>
+        </div>
       </div>
     </div>`;
 
