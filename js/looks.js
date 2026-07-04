@@ -91,6 +91,47 @@ const BRAND_LOOK = {
   image: 'assets/outfits/chrononebula.jpg',
 };
 
+/* The Ayeyarwady Capsule — three looks in which 8888 remembers old
+   Earth. Not a house and not a clan: a heritage collection that carries
+   Burmese craft (acheik river-weave, sacred lotus fibre, kalaga gold
+   relief) forward into the nebula. Standalone looks, like the house
+   signature, appended after the fourteen. */
+const HERITAGE_LOOKS = [
+  {
+    id: 'acheik-tide',
+    clanId: null,
+    house: 'Ayeyarwady Capsule',
+    title: 'Hundred-Shuttle Tide',
+    notes: 'The royal acheik was woven on a hundred shuttles, its waves copied from the ripples of the Ayeyarwady. Eight thousand years on, the river is gone but its pattern remains — here rewoven from a hundred shuttles of light, a wrapped column breaking at the floor into a train that still moves like water.',
+    materials: 'Lun-taya acheik light-thread · hundred-shuttle weave · river-gold ripple',
+    colors: ['#00FFB3', '#2E8F8A', '#C9B26B', '#F2F2F4', '#050505'],
+    colorNames: ['Nebula Emerald', 'Ayeyarwady Teal', 'River Gold', 'Lunar White', 'Deep Void'],
+    image: 'assets/outfits/acheik-tide.jpg',
+  },
+  {
+    id: 'lotus-reliquary',
+    clanId: null,
+    house: 'Ayeyarwady Capsule',
+    title: 'Lotus Reliquary',
+    notes: 'On old Earth, robes of lotus fibre were drawn from the stems of the red Padonma by the last weavers of Inle Lake. The capsule reawakens the thread as a living fibre that grows its own cloth, wrapped as a htamein over the plain black band, a single lotus raised in gold kalaga relief above the heart.',
+    materials: 'Living lotus-fibre weave · kalaga gold appliqué · ahtet-hsin black band',
+    colors: ['#E4B48C', '#4F9E7A', '#C9A94B', '#ECE6DA', '#0B0B0D'],
+    colorNames: ['Lotus Rose-Gold', 'Padonma Jade', 'Kalaga Gold', 'Inle Pearl', 'Ahtet Black'],
+    image: 'assets/outfits/lotus-reliquary.jpg',
+  },
+  {
+    id: 'kalaga-court',
+    clanId: null,
+    house: 'Ayeyarwady Capsule',
+    title: 'Kalaga Court',
+    notes: 'Kalaga hung in the courts of Mandalay: padded figures of gold thread and glass raised in relief on a dark ground, a whole theatre sewn onto cloth. This court mantle stages it one last time at the end of time — the old drama in gold and light-bead over obsidian, a pasoe panel falling to the floor.',
+    materials: 'Obsidian kalaga ground · raised gold-thread relief · glass & light-bead inlay',
+    colors: ['#0B0B0E', '#C9B26B', '#E6EAEF', '#5B4A9B', '#C98A3C'],
+    colorNames: ['Obsidian', 'Mandalay Gold', 'Glass White', 'Temporal Violet', 'Amber Ember'],
+    image: 'assets/outfits/kalaga-court.jpg',
+  },
+];
+
 export const LOOKS = [
   BRAND_LOOK,
   ...CLANS.map((clan) => {
@@ -107,4 +148,5 @@ export const LOOKS = [
       image: `assets/outfits/${clan.id}.jpg`,
     };
   }),
+  ...HERITAGE_LOOKS,
 ];
