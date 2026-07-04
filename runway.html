@@ -72,12 +72,17 @@
       <div class="runway-fallback" id="atelier-fallback" aria-hidden="true"></div>
 
       <aside class="glass look-panel" id="look-panel" aria-live="polite">
-        <p class="look-count" id="look-count"></p>
-        <p class="look-house" id="look-house"></p>
-        <h2 class="look-title" id="look-title"></h2>
-        <p class="look-notes" id="look-notes"></p>
-        <p class="look-materials" id="look-materials"></p>
-        <ul class="swatches look-swatches" id="look-swatches"></ul>
+        <button class="look-caption" id="look-toggle" aria-expanded="false" aria-controls="look-details">
+          <span class="look-count" id="look-count"></span>
+          <span class="look-house" id="look-house"></span>
+          <span class="look-title" id="look-title"></span>
+          <span class="look-more">Details <i class="look-caret" aria-hidden="true">&#9662;</i></span>
+        </button>
+        <div class="look-details" id="look-details" hidden>
+          <p class="look-notes" id="look-notes"></p>
+          <p class="look-materials" id="look-materials"></p>
+          <ul class="swatches look-swatches" id="look-swatches"></ul>
+        </div>
       </aside>
 
       <div class="atelier-hud">

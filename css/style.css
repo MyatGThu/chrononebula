@@ -1105,34 +1105,84 @@ a { color: var(--ink); }
 .atelier-stage.no-webgl #atelier-canvas { display: none; }
 .atelier-stage.no-webgl .runway-fallback { display: block; }
 
+/* collapsed by default: a one-line caption strip docked at the top so
+   the figure weaves on a clean stage; "Details" discloses the story */
 .look-panel {
   position: absolute;
-  top: 1.25rem;
-  right: 1.25rem;
-  width: min(330px, 86vw);
-  max-height: calc(100% - 2.5rem);
+  top: 1rem;
+  left: 1rem;
+  right: 1rem;
+  max-height: calc(100% - 2rem);
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 1.5rem 1.5rem 1.35rem;
+  padding: 0;
+}
+.look-caption {
+  display: flex;
+  align-items: baseline;
+  gap: 1rem;
+  width: 100%;
+  padding: 0.85rem 1.15rem;
+  background: none;
+  border: 0;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.look-caption:focus-visible {
+  outline: 2px solid var(--emerald);
+  outline-offset: -2px;
 }
 .look-count {
   color: var(--ink-dim);
-  font-size: 0.78rem;
-  letter-spacing: 0.28em;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-bottom: 1rem;
+  white-space: nowrap;
 }
 .look-house {
   color: var(--gold);
-  font-size: 0.85rem;
-  letter-spacing: 0.3em;
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
-  margin-bottom: 0.35rem;
+  white-space: nowrap;
 }
 .look-title {
-  font-size: clamp(1.5rem, 2.6vw, 1.95rem);
+  font-family: var(--font-display, inherit);
+  font-size: 1.08rem;
   font-weight: 500;
-  margin-bottom: 0.8rem;
+  letter-spacing: 0.04em;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.look-more {
+  color: var(--ink-dim);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.look-caret {
+  display: inline-block;
+  font-style: normal;
+  transition: transform 300ms var(--ease-out);
+}
+.look-panel.expanded .look-caret { transform: rotate(180deg); }
+/* narrow screens: the title takes its own line under the caption row */
+@media (max-width: 560px) {
+  .look-caption { flex-wrap: wrap; row-gap: 0.2rem; }
+  .look-more { margin-left: auto; }
+  .look-title { flex-basis: 100%; white-space: normal; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .look-caption:hover .look-more { color: var(--emerald); }
+}
+.look-details {
+  padding: 0.1rem 1.15rem 1.15rem;
 }
 .look-notes {
   color: var(--ink-dim);

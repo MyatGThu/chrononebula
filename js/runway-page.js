@@ -11,6 +11,9 @@ const canvas = document.getElementById('atelier-canvas');
 const drawer = document.getElementById('runway-drawer');
 const scrim = document.getElementById('runway-scrim');
 const closeBtn = document.getElementById('runway-close');
+const lookPanel = document.getElementById('look-panel');
+const lookToggle = document.getElementById('look-toggle');
+const lookDetails = document.getElementById('look-details');
 const counter = document.getElementById('look-count');
 const houseEl = document.getElementById('look-house');
 const titleEl = document.getElementById('look-title');
@@ -27,11 +30,20 @@ const pad = (n) => String(n).padStart(2, '0');
 
 /* -------------------------------------------------------------- panel -- */
 
+/* the caption stays a single line; the story lives behind "Details" */
+function setDetails(open) {
+  lookDetails.hidden = !open;
+  lookToggle.setAttribute('aria-expanded', String(open));
+  lookPanel.classList.toggle('expanded', open);
+}
+lookToggle.addEventListener('click', () => setDetails(lookDetails.hidden));
+
 function setLook(i, updateHash = true) {
   index = (i + LOOKS.length) % LOOKS.length;
   const look = LOOKS[index];
 
-  counter.textContent = `Look ${pad(index + 1)} / ${pad(LOOKS.length)}`;
+  setDetails(false);        /* every new look weaves on a clean stage */
+  counter.textContent = `${pad(index + 1)} / ${pad(LOOKS.length)}`;
   houseEl.textContent = look.house;
   titleEl.textContent = look.title;
   notesEl.textContent = look.notes;
