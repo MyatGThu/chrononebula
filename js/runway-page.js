@@ -88,6 +88,63 @@ function lookFromHash() {
 }
 window.addEventListener('hashchange', () => setLook(lookFromHash(), false));
 
+/* ----------------------------------------------------------- lookbook -- */
+
+/* The collection, lined up: every photograph as a card. Hovering floats
+   the image up and the loupe inspects it; choosing a card sends the
+   look up to the stage to be woven. */
+const grid = document.getElementById('lookbook-grid');
+
+for (const [i, look] of LOOKS.entries()) {
+  const card = document.createElement('article');
+  card.className = 'lookbook-card rv';
+  card.innerHTML = `
+    <figure class="lookbook-media">
+      <img src="${look.image}" alt="${look.title} — the ${look.house} look, worn by Melina Jones Voss"
+           loading="lazy" width="720" height="1280">
+    </figure>
+    <div class="lookbook-info">
+      <p class="lookbook-house">${look.house}</p>
+      <h3>${look.title}</h3>
+      <p class="lookbook-materials">${look.materials}</p>
+      <button class="lookbook-watch" type="button" data-look-index="${i}">Watch it woven &#8599;</button>
+    </div>`;
+  grid.append(card);
+}
+
+grid.addEventListener('click', (e) => {
+  const btn = e.target.closest('.lookbook-watch');
+  if (!btn) return;
+  setLook(Number(btn.dataset.lookIndex));
+  stage.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+});
+
+/* card loupe (hover-capable pointers only — touch users have the stage) */
+if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
+  const cardLoupe = document.createElement('div');
+  cardLoupe.className = 'atelier-loupe lookbook-loupe';
+  cardLoupe.setAttribute('aria-hidden', 'true');
+  grid.append(cardLoupe);
+  const CARD_ZOOM = 2.2;
+
+  grid.addEventListener('mousemove', (e) => {
+    const img = e.target.closest('.lookbook-media')?.querySelector('img');
+    if (!img || !img.complete) { cardLoupe.classList.remove('on'); return; }
+    const ib = img.getBoundingClientRect();
+    const gb = grid.getBoundingClientRect();
+    const px = e.clientX - ib.left;
+    const py = e.clientY - ib.top;
+    const r = cardLoupe.offsetWidth / 2;
+    cardLoupe.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
+    cardLoupe.style.backgroundSize = `${ib.width * CARD_ZOOM}px ${ib.height * CARD_ZOOM}px`;
+    cardLoupe.style.backgroundPosition =
+      `${-(px * CARD_ZOOM - r)}px ${-(py * CARD_ZOOM - r)}px`;
+    cardLoupe.style.transform = `translate(${e.clientX - gb.left - r}px, ${e.clientY - gb.top - r}px)`;
+    cardLoupe.classList.add('on');
+  });
+  grid.addEventListener('mouseleave', () => cardLoupe.classList.remove('on'));
+}
+
 /* -------------------------------------------------------------- loupe -- */
 
 /* Couture inspection: once the weave has crystallized into the
@@ -122,6 +179,7 @@ function showLoupeAt(clientX, clientY) {
   }
   const sb = stage.getBoundingClientRect();
   const r = loupe.offsetWidth / 2;
+  loupe.style.filter = `brightness(${rect.lift ?? 1})`;
   loupe.style.backgroundImage = `url("${LOOKS[index].image}")`;
   loupe.style.backgroundSize = `${rect.w * LOUPE_ZOOM}px ${rect.h * LOUPE_ZOOM}px`;
   loupe.style.backgroundPosition =

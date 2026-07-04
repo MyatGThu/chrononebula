@@ -137,6 +137,7 @@ function sampleImage(img, count) {
   const px = [];
   const weights = [];
   let total = 0;
+  const hist = new Uint32Array(256);
   for (let y = 0; y < H; y++) {
     for (let x = 0; x < W; x++) {
       const i = (y * W + x) * 4;
@@ -148,13 +149,28 @@ function sampleImage(img, count) {
       px.push(x, y, r, g, b);
       total += lum + 14;                     /* darks keep a small chance */
       weights.push(total);
+      hist[Math.min(255, lum | 0)]++;
     }
   }
 
   const pos = new Float32Array(count * 3);
   const col = new Float32Array(count * 3);
   const aspect = W / H;
-  if (!weights.length) return { pos, col, aspect };  /* blank image: collapse to origin */
+  if (!weights.length) return { pos, col, aspect, lift: 1 };  /* blank image: collapse to origin */
+
+  /* exposure normalization: near-black couture (obsidian plate, void
+     memorysilk) would weave and crystallize almost invisibly, since both
+     the particles and the photo gate run on luminance. The MEDIAN lit
+     pixel is the garment (skin and specular highlights would drag a mean
+     up), so lift dark images by their median toward a common exposure —
+     applied as a highlight-preserving curve so faces never clip. */
+  let medianLum = 255;
+  for (let acc = 0, m = 0; m < 256; m++) {
+    acc += hist[m];
+    if (acc >= weights.length / 2) { medianLum = m; break; }
+  }
+  const lift = Math.min(2.6, Math.max(1, 115 / Math.max(1, medianLum)));
+  const tone = (v) => (v * lift) / (1 + v * (lift - 1));
 
   const worldW = FIG_HEIGHT * (W / H);
   for (let i = 0; i < count; i++) {
@@ -178,11 +194,11 @@ function sampleImage(img, count) {
     pos[i * 3] = nx * worldW;
     pos[i * 3 + 1] = (1 - sy / H) * FIG_HEIGHT + 0.05;
     pos[i * 3 + 2] = z;
-    col[i * 3] = r;
-    col[i * 3 + 1] = g;
-    col[i * 3 + 2] = b;
+    col[i * 3] = tone(r);
+    col[i * 3 + 1] = tone(g);
+    col[i * 3 + 2] = tone(b);
   }
-  return { pos, col, aspect };
+  return { pos, col, aspect, lift };
 }
 
 const imageCache = new Map();
@@ -302,6 +318,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
         uMap: { value: null },
         uProgress: { value: 0 },
         uStrength: { value: 1 },
+        uLift: { value: 1 },
       },
       vertexShader: /* glsl */ `
         varying vec2 vUv;
@@ -314,12 +331,16 @@ export function initAtelier(canvas, { reduced = false } = {}) {
         uniform sampler2D uMap;
         uniform float uProgress;
         uniform float uStrength;
+        uniform float uLift;
         varying vec2 vUv;
         void main() {
           vec3 col = texture2D(uMap, vUv).rgb;
           /* crush the JPEG noise floor so the plane's black void adds
              nothing over the stage */
           col = max(col - 0.05, 0.0) / 0.95;
+          /* per-image exposure lift, matched to the woven particles:
+             a highlight-preserving curve, not a linear gain */
+          col = col * uLift / (vec3(1.0) + col * (uLift - 1.0));
           /* the photograph materializes by luminance: its brightest
              threads crystallize first, shadows fill in last (and the
              reverse when dissolving back to dust) */
@@ -395,7 +416,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   const HOLD_SECONDS = reduced ? 0.2 : 0.7;
 
   function applyPending() {
-    const { pos, col, img, aspect } = pending;
+    const { pos, col, img, aspect, lift } = pending;
     pending = null;
     hold = 0;
     if (firstLook) {
@@ -421,6 +442,7 @@ export function initAtelier(canvas, { reduced = false } = {}) {
     for (const mesh of [photo, photoMirror]) {
       const old = mesh.material.uniforms.uMap.value;
       mesh.material.uniforms.uMap.value = tex;
+      mesh.material.uniforms.uLift.value = lift;
       if (old && old !== tex) old.dispose();
     }
     const w = FIG_HEIGHT * aspect;
@@ -520,7 +542,10 @@ export function initAtelier(canvas, { reduced = false } = {}) {
         minX = Math.min(minX, x); maxX = Math.max(maxX, x);
         minY = Math.min(minY, y); maxY = Math.max(maxY, y);
       }
-      return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+      return {
+        x: minX, y: minY, w: maxX - minX, h: maxY - minY,
+        lift: photo.material.uniforms.uLift.value,
+      };
     },
     setLook(look) {
       accentTarget.set(brightest(look.colors));
@@ -531,8 +556,8 @@ export function initAtelier(canvas, { reduced = false } = {}) {
       hold = 0;
       loadImage(look.image).then((img) => {
         if (token !== lookToken) return;     /* superseded by a later pick */
-        const { pos, col, aspect } = sampleImage(img, COUNT);
-        pending = { pos, col, img, aspect };
+        const { pos, col, aspect, lift } = sampleImage(img, COUNT);
+        pending = { pos, col, img, aspect, lift };
       }).catch(() => {});                    /* missing image: keep current */
     },
     destroy() {

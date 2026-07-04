@@ -1147,6 +1147,97 @@ a { color: var(--ink); }
   }
 }
 
+/* --------------------------------------------------------------------------
+   Runway 8888 — the lookbook
+   -------------------------------------------------------------------------- */
+
+.lookbook {
+  padding: clamp(3.5rem, 8vh, 6rem) var(--pad-x) clamp(1.5rem, 4vh, 3rem);
+  max-width: 96rem;
+  margin-inline: auto;
+}
+.lookbook-head h2 {
+  font-size: clamp(1.7rem, 3.6vw, 2.6rem);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.lookbook-head .page-lede { margin-top: 0.7rem; }
+
+.lookbook-grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+  gap: clamp(1rem, 2.2vw, 1.8rem);
+  margin-top: clamp(1.6rem, 4vh, 2.6rem);
+}
+
+.lookbook-card {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-panel);
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 300ms ease;
+}
+.lookbook-media {
+  margin: 0;
+  aspect-ratio: 9 / 16;
+  overflow: hidden;
+  background: #000;
+  cursor: zoom-in;
+}
+.lookbook-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 500ms var(--ease-out);
+}
+.lookbook-info {
+  padding: 1rem 1.15rem 1.25rem;
+}
+.lookbook-house {
+  color: var(--gold);
+  font-size: 0.72rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+.lookbook-info h3 {
+  font-family: var(--font-display, inherit);
+  font-size: 1.18rem;
+  letter-spacing: 0.04em;
+  margin: 0.35rem 0 0.4rem;
+}
+.lookbook-materials {
+  color: var(--ink-dim);
+  font-size: 0.8rem;
+  letter-spacing: 0.03em;
+}
+.lookbook-watch {
+  background: none;
+  border: 0;
+  padding: 0.5rem 0 0;
+  margin-top: 0.35rem;
+  color: var(--emerald);
+  font: inherit;
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.lookbook-watch:focus-visible {
+  outline: 2px solid var(--emerald);
+  outline-offset: 3px;
+}
+@media (hover: hover) and (pointer: fine) {
+  /* the image floats up into the card */
+  .lookbook-card:hover { border-color: rgba(0, 255, 179, 0.35); }
+  .lookbook-card:hover .lookbook-media img { transform: translateY(-12px) scale(1.045); }
+  .lookbook-watch:hover { text-decoration: underline; text-underline-offset: 4px; }
+}
+.lookbook-loupe { z-index: 5; }
+
 .runway-chips {
   display: flex;
   flex-wrap: wrap;
