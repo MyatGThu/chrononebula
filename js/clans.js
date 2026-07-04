@@ -27,22 +27,23 @@ indexNav.innerHTML = CLANS
   .map((clan) => `<a class="clan-index-chip" href="#clan-${clan.id}">${clan.name}</a>`)
   .join('');
 
-/* the codex plates: one establishing shot per world, alt text in the
-   voice of the atlas */
+/* the codex plates: a portrait of each clan's leader, dressed in the
+   clan's own palette and fashion ideology, alt text in the voice of
+   the atlas */
 const SCENES = {
-  'black-chronoa': 'Cindra: the First Monolith rising over the ceremonial city, chrono-gold seams alight',
-  'white-nova': 'Nova Nexus: white crystalline towers veined with nova-core cyan',
-  'rogue-lunaris': 'Moonlight Luna: the temple city beneath the eclipsed moon, crimson banners in pearl light',
-  'lumina': 'Zemo: rings of time orbiting the white-and-gold spires',
-  'solar-punk': 'Neon Metro: gardens climbing the glass towers at golden hour',
-  'cyberpunk': 'Neon Abyss: a rain-slick canyon of cyan and magenta light',
-  'chrono-punk': 'Yangon: the temporal bazaar where salvaged centuries collide',
-  'ocean-void': 'Lymnora: the bioluminescent city beneath the living sea',
-  'black-order': 'The Cathedral: an obsidian fortress of absolute symmetry',
-  'dragon-cypher': 'Benoth: the forge-city in the caldera, rivers of magma between the works',
-  'martian-clan': 'Zylo: a terraformed canyon settlement under a rust sunset',
-  'bio-punk': 'Verdantia Arcology: the city grown from living organisms, in bloom',
-  'apex': 'The unwritten world of the Apex: a prismatic monolith in the void',
+  'black-chronoa': 'Queen Ani Thu Zard of the Black Chronoa, crowned in obsidian and chrono-gold before the First Monolith',
+  'white-nova': 'The architect-priestess of White Nova in absolute white, avatar of NEXUS, before the spires of Nova Nexus',
+  'rogue-lunaris': 'The High Moon Oracle of Rogue Lunaris, veiled in rouge crimson beneath the eclipsed moon',
+  'lumina': 'The High Luminary of Lumina in celestial white and astral gold, crowned by twin rings of time',
+  'solar-punk': 'The Solar Punk matriarch in living gold-and-leaf couture above the gardens of Neon Metro',
+  'cyberpunk': 'A Cyberpunk netrunner leader in carbon-black armor lit cyber-blue and magenta in the Neon Abyss',
+  'chrono-punk': 'The Chrono Punk nomad chieftain in salvaged patchwork armor before the chrono-monuments of Yangon',
+  'ocean-void': 'A Tide Council elder of Ocean Void in lymnora-cyan water-silk beneath the living sea',
+  'black-order': 'A Grand Commander of the Black Order in obsidian plate before the Cathedral fortress',
+  'dragon-cypher': 'A Dragon Cypher forge-master in ember-shedding forge-silk above the magma of Benoth',
+  'martian-clan': 'A councillor of the Martian Clan in a rust-dyed duster amid the canyon dust of Zylo',
+  'bio-punk': 'A Circle of Growth leader of Bio Punk in a living bloom-gown before the Verdantia Arcology',
+  'apex': 'The unrevealed leader of the Apex: a prismatic silhouette that refuses a single color',
 };
 
 /* the codex */
