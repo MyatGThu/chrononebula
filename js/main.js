@@ -66,6 +66,56 @@ selectPlanet('achronox');
 
 const hasWebGL = webglAvailable();
 
+/* The campaign rotates: six shots of Melina crossfade on the hero.
+   Frame one is the static LCP image; the rest are created lazily just
+   before their turn so they never race the first paint. Reduced motion
+   keeps the single still. */
+const HERO_SHOTS = [
+  'assets/hero/hero-aurora.jpg',
+  'assets/hero/hero-procession.jpg',
+  'assets/hero/hero-constellation.jpg',
+  'assets/hero/hero-profile.jpg',
+  'assets/hero/hero-molten.jpg',
+];
+const heroMedia = document.querySelector('.hero-media');
+const heroStill = document.querySelector('.hero-img');
+if (heroMedia && heroStill && !reducedMotion.matches) {
+  const frames = [heroStill];
+  let current = 0;
+  let heroVisible = true;
+  const heroIO = new IntersectionObserver((entries) => {
+    heroVisible = entries[entries.length - 1].isIntersecting;
+  });
+  heroIO.observe(heroMedia);
+
+  const frameFor = (i) => {
+    if (frames[i]) return frames[i];
+    const img = document.createElement('img');
+    img.className = 'hero-img hero-frame';
+    img.src = HERO_SHOTS[i - 1];
+    img.alt = '';
+    img.decoding = 'async';
+    /* insert right after the still so canvas + grade stay on top */
+    heroStill.after(img);
+    frames[i] = img;
+    return img;
+  };
+
+  setInterval(() => {
+    if (!heroVisible || document.hidden) return;
+    const next = (current + 1) % (HERO_SHOTS.length + 1);
+    frameFor(next);
+    frameFor((next + 1) % (HERO_SHOTS.length + 1));   /* warm the one after */
+    requestAnimationFrame(() => {
+      heroStill.classList.toggle('dim', next !== 0);
+      for (let i = 1; i < frames.length; i++) {
+        frames[i]?.classList.toggle('on', i === next);
+      }
+      current = next;
+    });
+  }, 7000);
+}
+
 /* Hero particles: decorative, so the 3D module waits for an idle
    moment instead of racing the LCP image and fonts for bandwidth */
 const heroCanvas = document.getElementById('hero-canvas');

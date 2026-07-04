@@ -358,6 +358,8 @@ a { color: var(--ink); }
 
 .hero-media { position: absolute; inset: 0; overflow: hidden; }
 .hero-img {
+  position: absolute;
+  inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -365,6 +367,15 @@ a { color: var(--ink); }
      portrait framings */
   object-position: 68% 30%;
   filter: saturate(0.88) brightness(0.94);
+  transition: opacity 1600ms ease;
+}
+/* the campaign rotation: later frames crossfade over the LCP still,
+   which stays visible without JavaScript */
+.hero-img.dim { opacity: 0; }
+.hero-frame { opacity: 0; }
+.hero-frame.on { opacity: 1; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-img { transition: none; }
 }
 .hero-canvas {
   position: absolute;
