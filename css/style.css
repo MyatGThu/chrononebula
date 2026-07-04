@@ -981,6 +981,45 @@ a { color: var(--ink); }
   border-bottom: 1px solid var(--line-soft);
   overflow: hidden;
 }
+
+/* the inspect loupe: magnifies the settled photograph under the pointer */
+.atelier-loupe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: clamp(140px, 22vw, 220px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: #000;
+  background-repeat: no-repeat;
+  box-shadow:
+    inset 0 0 0 1px rgba(255, 255, 255, 0.16),
+    0 18px 50px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 255, 179, 0.14);
+  opacity: 0;
+  transition: opacity 180ms ease;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 3;
+}
+.atelier-loupe.on { opacity: 1; }
+
+.atelier-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 1.1rem;
+  transform: translateX(-50%);
+  color: var(--ink-dim);
+  font-size: 0.78rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 600ms ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.atelier-hint.on { opacity: 0.7; }
 #atelier-canvas {
   position: absolute;
   inset: 0;
@@ -1099,6 +1138,12 @@ a { color: var(--ink); }
     width: auto;
     max-height: none;
     margin: 1rem var(--pad-x) 1.4rem;
+  }
+  /* the stage is a flex column here, so pin the hint to the canvas,
+     not the stage bottom */
+  .atelier-hint {
+    bottom: auto;
+    top: calc(max(58vh, 380px) - 2.4rem);
   }
 }
 

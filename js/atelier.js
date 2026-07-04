@@ -501,7 +501,27 @@ export function initAtelier(canvas, { reduced = false } = {}) {
 
   frame();
 
+  const inspectCorner = new THREE.Vector3();
+
   return {
+    /* screen-space rect of the settled photograph (canvas CSS px), or
+       null while the weave is still particles — drives the inspect loupe */
+    inspect() {
+      if (!photo.visible || resolve < 0.9) return null;
+      const w = canvas.clientWidth;
+      const h = canvas.clientHeight;
+      if (!w || !h) return null;
+      photo.updateWorldMatrix(true, false);
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      for (const [cx, cy] of [[-0.5, 0.5], [0.5, 0.5], [-0.5, -0.5], [0.5, -0.5]]) {
+        inspectCorner.set(cx, cy, 0).applyMatrix4(photo.matrixWorld).project(camera);
+        const x = (inspectCorner.x * 0.5 + 0.5) * w;
+        const y = (-inspectCorner.y * 0.5 + 0.5) * h;
+        minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+        minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+      }
+      return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    },
     setLook(look) {
       accentTarget.set(brightest(look.colors));
       const token = ++lookToken;
