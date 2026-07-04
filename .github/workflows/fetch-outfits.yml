@@ -36,8 +36,15 @@ jobs:
             path=$(jq -r '.path // ("assets/outfits/" + .file)' <<<"$item")
             echo "fetching $path (${width}px)"
             mkdir -p "$(dirname "$path")"
-            curl -sSL "$url" -o /tmp/src.img
-            convert /tmp/src.img -resize "${width}x" -background black -flatten -strip -quality 82 "$path"
+            case "$path" in
+              *.mp4|*.webm)
+                curl -sSL "$url" -o "$path"
+                ;;
+              *)
+                curl -sSL "$url" -o /tmp/src.img
+                convert /tmp/src.img -resize "${width}x" -background black -flatten -strip -quality 82 "$path"
+                ;;
+            esac
           done
 
       - name: Commit and push

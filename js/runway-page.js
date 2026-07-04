@@ -88,6 +88,37 @@ function lookFromHash() {
 }
 window.addEventListener('hashchange', () => setLook(lookFromHash(), false));
 
+/* --------------------------------------------------------------- walk -- */
+
+/* The opening walk: a real film, no particles. The MP4 only loads once
+   the frame nears the viewport, plays while visible, and stays a still
+   poster (with controls) under reduced motion. */
+const walkVideo = document.getElementById('walk-video');
+
+if (walkVideo) {
+  if (reducedMotion.matches) {
+    walkVideo.controls = true;
+    walkVideo.removeAttribute('loop');
+    walkVideo.preload = 'metadata';
+    walkVideo.src = walkVideo.dataset.src;
+  } else if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          if (!walkVideo.src) walkVideo.src = walkVideo.dataset.src;
+          walkVideo.play().catch(() => { walkVideo.controls = true; });
+        } else if (walkVideo.src) {
+          walkVideo.pause();
+        }
+      }
+    }, { rootMargin: '200px 0px' });
+    io.observe(walkVideo);
+  } else {
+    walkVideo.src = walkVideo.dataset.src;
+    walkVideo.autoplay = true;
+  }
+}
+
 /* -------------------------------------------------------------- stage -- */
 
 const hasWebGL = webglAvailable();
