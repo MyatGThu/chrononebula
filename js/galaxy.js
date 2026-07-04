@@ -323,10 +323,14 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
   }
 
   /* Layout */
+  let viewW = 0;
+  let viewH = 0;
   function resize() {
     const holder = canvas.parentElement;
     const w = holder.clientWidth;
     const h = canvas.clientHeight || holder.clientHeight;
+    viewW = w;
+    viewH = h;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
@@ -343,7 +347,8 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
   const clock = new THREE.Clock();
 
   function updateLabels() {
-    const rect = canvas.getBoundingClientRect();
+    /* sizes cached by resize(): no per-frame layout read in the loop */
+    const rect = { width: viewW, height: viewH };
     for (const group of root.children) {
       const id = group.userData?.id;
       if (!id) continue;

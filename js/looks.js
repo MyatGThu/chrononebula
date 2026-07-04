@@ -3,7 +3,7 @@
    assets/outfits/ — the engine weaves the particle figure from that
    image's pixels. */
 
-import { BRAND, CLANS, clanById } from './data.js';
+import { BRAND, CLANS } from './data.js';
 
 const OUTFITS = {
   'black-chronoa': {
@@ -87,7 +87,7 @@ const BRAND_LOOK = {
     BRAND.palette.novaGold,
     BRAND.palette.cosmicBlue,
   ],
-  prismatic: false,
+  colorNames: ['Nebula Emerald', 'Lunar White', 'Chrome Silver', 'Nova Gold', 'Cosmic Blue'],
   image: 'assets/outfits/chrononebula.jpg',
 };
 
@@ -103,11 +103,8 @@ export const LOOKS = [
       notes: outfit.notes,
       materials: outfit.materials,
       colors: clan.palette ? clan.palette.map((c) => c.hex) : null,
-      prismatic: !!clan.unknown,
+      colorNames: clan.palette ? clan.palette.map((c) => c.name) : null,
       image: `assets/outfits/${clan.id}.jpg`,
     };
   }),
 ];
-
-export const lookById = (id) => LOOKS.find((l) => l.id === id);
-export { clanById };

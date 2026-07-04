@@ -49,7 +49,9 @@ function setLook(i, updateHash = true) {
   notesEl.textContent = look.notes;
   materialsEl.textContent = look.materials;
   swatchesEl.innerHTML = look.colors
-    ? look.colors.map((hex) => `<li><i style="background:${hex}"></i></li>`).join('')
+    ? look.colors.map((hex, ci) =>
+        `<li><i style="background:${hex}"></i><span class="sr-only">${look.colorNames?.[ci] ?? hex}</span></li>`
+      ).join('')
     : '<li class="look-unknown">Palette unclassified</li>';
 
   if (atelierApi) atelierApi.setLook(look);
@@ -58,8 +60,9 @@ function setLook(i, updateHash = true) {
     stage.style.setProperty('--fb1', g[2] ?? g[0]);
     stage.style.setProperty('--fb2', g[1]);
   }
+  if (drawerOpen) watchWeave(look);
 
-  if (updateHash) history.replaceState(null, '', `#look-${look.id}`);
+  if (updateHash) history.replaceState(history.state, '', `#look-${look.id}`);
 }
 
 /* ------------------------------------------------------------- drawer -- */
@@ -67,6 +70,15 @@ function setLook(i, updateHash = true) {
 let drawerOpen = false;
 let lastTrigger = null;
 let engineStarted = false;
+let pushedDrawerState = false;
+
+/* while the modal drawer is open, the page behind it leaves the
+   accessibility tree entirely */
+const inertBehind = [
+  document.querySelector('main'),
+  document.querySelector('.nav'),
+  document.querySelector('.footer'),
+];
 
 /* the engine boots on first open — no point weaving behind a closed door */
 function startEngine() {
@@ -91,23 +103,81 @@ function openDrawer(trigger) {
   drawer.classList.add('open');
   scrim.classList.add('on');
   document.documentElement.classList.add('drawer-lock');
+  inertBehind.forEach((el) => { if (el) el.inert = true; });
+  /* the drawer is a history entry, so the back gesture closes it
+     instead of leaving the site */
+  history.pushState({ runwayDrawer: true }, '', `#look-${LOOKS[index].id}`);
+  pushedDrawerState = true;
   startEngine();
+  watchWeave(LOOKS[index]);
   closeBtn.focus({ preventScroll: true });
 }
 
-function closeDrawer() {
+/* tears the drawer down without touching history */
+function settleDrawerClosed() {
   if (!drawerOpen) return;
   drawerOpen = false;
+  pushedDrawerState = false;
   drawer.classList.remove('open');
   scrim.classList.remove('on');
   document.documentElement.classList.remove('drawer-lock');
+  inertBehind.forEach((el) => { if (el) el.inert = false; });
+  weaveToken++;
+  weaveStatus.classList.remove('on');
   history.replaceState(null, '', location.pathname + location.search);
   if (lastTrigger?.isConnected) lastTrigger.focus({ preventScroll: true });
   lastTrigger = null;
 }
 
+/* UI closes go through history so back/forward stays coherent */
+function closeDrawer() {
+  if (!drawerOpen) return;
+  if (pushedDrawerState) history.back();   /* popstate finishes the job */
+  else settleDrawerClosed();
+}
+
+window.addEventListener('popstate', () => {
+  if (drawerOpen) settleDrawerClosed();
+});
+
 closeBtn.addEventListener('click', closeDrawer);
 scrim.addEventListener('click', closeDrawer);
+
+/* --------------------------------------------------- weaving status -- */
+
+/* The stage opens as near-black dust and takes seconds to assemble;
+   without a cue that reads as broken. A quiet line reassures until the
+   photograph settles, and speaks up if the image never arrives. */
+const weaveStatus = document.createElement('p');
+weaveStatus.className = 'atelier-hint atelier-status';
+stage.append(weaveStatus);
+let weaveToken = 0;
+
+function watchWeave(look) {
+  if (!hasWebGL) return;
+  const token = ++weaveToken;
+  weaveStatus.textContent = 'Weaving the look…';
+  weaveStatus.classList.add('on');
+  const probe = new Image();
+  probe.onerror = () => {
+    if (token === weaveToken) {
+      weaveStatus.textContent = 'The archive could not deliver this look — try another house.';
+    }
+  };
+  probe.src = look.image;
+  const iv = setInterval(() => {
+    if (token !== weaveToken) { clearInterval(iv); return; }
+    if (stage.classList.contains('no-webgl')) {
+      weaveStatus.classList.remove('on');
+      clearInterval(iv);
+      return;
+    }
+    if (atelierApi?.inspect()) {
+      weaveStatus.classList.remove('on');
+      clearInterval(iv);
+    }
+  }, 400);
+}
 
 document.getElementById('look-prev').addEventListener('click', () => setLook(index - 1));
 document.getElementById('look-next').addEventListener('click', () => setLook(index + 1));
@@ -161,16 +231,22 @@ for (const [i, look] of LOOKS.entries()) {
       <p class="lookbook-house">${look.house}</p>
       <h3>${look.title}</h3>
       <p class="lookbook-materials">${look.materials}</p>
-      <button class="lookbook-watch" type="button" data-look-index="${i}">Watch it woven &#8599;</button>
+      <button class="lookbook-watch" type="button" data-look-index="${i}">Watch it woven &rarr;</button>
     </div>`;
+  card.dataset.lookIndex = i;
   grid.append(card);
 }
 
+/* the photograph is the biggest, most inviting target on the card, so
+   it opens the drawer too — the button stays as the labeled affordance */
 grid.addEventListener('click', (e) => {
-  const btn = e.target.closest('.lookbook-watch');
-  if (!btn) return;
-  setLook(Number(btn.dataset.lookIndex));
-  openDrawer(btn);
+  const hit = e.target.closest('.lookbook-watch, .lookbook-media');
+  if (!hit) return;
+  const card = hit.closest('.lookbook-card');
+  if (!card) return;
+  const i = Number(card.dataset.lookIndex);
+  setLook(i);
+  openDrawer(card.querySelector('.lookbook-watch'));
 });
 
 /* card loupe (hover-capable pointers only — touch users have the stage) */
@@ -220,7 +296,7 @@ hint.textContent = coarsePointer
   ? 'Press and hold the look to inspect the weave'
   : 'Hover the look to inspect the weave';
 stage.append(hint);
-let hintDone = false;
+let hintDone = !hasWebGL;   /* no engine, no weave to inspect */
 
 function showLoupeAt(clientX, clientY) {
   const rect = atelierApi?.inspect();

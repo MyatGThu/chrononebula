@@ -66,12 +66,17 @@ selectPlanet('achronox');
 
 const hasWebGL = webglAvailable();
 
-/* Hero particles */
+/* Hero particles: decorative, so the 3D module waits for an idle
+   moment instead of racing the LCP image and fonts for bandwidth */
 const heroCanvas = document.getElementById('hero-canvas');
 if (hasWebGL && !reducedMotion.matches) {
-  import('./hero.js')
-    .then(({ initHero }) => initHero(heroCanvas))
-    .catch(() => heroCanvas.remove());
+  const loadHero = () => {
+    import('./hero.js')
+      .then(({ initHero }) => initHero(heroCanvas))
+      .catch(() => heroCanvas.remove());
+  };
+  if ('requestIdleCallback' in window) requestIdleCallback(loadHero, { timeout: 2500 });
+  else setTimeout(loadHero, 350);
 } else {
   heroCanvas.remove();
 }
