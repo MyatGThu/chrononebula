@@ -1,13 +1,16 @@
-/* Runway 8888 — page controller. Builds the look rail and detail panel
-   from LOOKS, drives the atelier engine, and supports deep links like
-   runway.html#look-dragon-cypher plus arrow-key navigation. */
+/* Runway 8888 — page controller. Builds the lookbook grid from LOOKS;
+   "Watch it woven" slides out the runway drawer where the atelier engine
+   materializes the look. Deep links like runway.html#look-dragon-cypher
+   open the drawer directly; arrow keys walk the looks while it is open. */
 
 import { LOOKS } from './looks.js';
-import { initCommon, reducedMotion, webglAvailable, lazyInit } from './common.js';
+import { initCommon, reducedMotion, webglAvailable } from './common.js';
 
 const stage = document.querySelector('.atelier-stage');
 const canvas = document.getElementById('atelier-canvas');
-const chips = document.getElementById('runway-chips');
+const drawer = document.getElementById('runway-drawer');
+const scrim = document.getElementById('runway-scrim');
+const closeBtn = document.getElementById('runway-close');
 const counter = document.getElementById('look-count');
 const houseEl = document.getElementById('look-house');
 const titleEl = document.getElementById('look-title');
@@ -15,44 +18,18 @@ const notesEl = document.getElementById('look-notes');
 const materialsEl = document.getElementById('look-materials');
 const swatchesEl = document.getElementById('look-swatches');
 
+const hasWebGL = webglAvailable();
+
 let atelierApi = null;
 let index = 0;
 
 const pad = (n) => String(n).padStart(2, '0');
-
-/* ------------------------------------------------------------- chips -- */
-
-for (const [i, look] of LOOKS.entries()) {
-  const chip = document.createElement('button');
-  chip.className = 'runway-chip';
-  chip.dataset.look = look.id;
-  chip.setAttribute('aria-pressed', 'false');
-  const g = look.colors ?? ['#3a3444', '#6b5f8a', '#2b3a37'];
-  chip.innerHTML = `<i style="--g1:${g[0]};--g2:${g[2]};--g3:${g[3] ?? g[1]}" aria-hidden="true"></i>${look.house}`;
-  chip.addEventListener('click', () => setLook(i));
-  chips.append(chip);
-}
 
 /* -------------------------------------------------------------- panel -- */
 
 function setLook(i, updateHash = true) {
   index = (i + LOOKS.length) % LOOKS.length;
   const look = LOOKS[index];
-
-  chips.querySelectorAll('.runway-chip').forEach((c) => {
-    c.setAttribute('aria-pressed', String(c.dataset.look === look.id));
-  });
-
-  /* when the rail scrolls (phones), keep the chosen house centered */
-  if (chips.scrollWidth > chips.clientWidth) {
-    const active = chips.querySelector(`[data-look="${look.id}"]`);
-    if (active) {
-      chips.scrollTo({
-        left: active.offsetLeft - chips.clientWidth / 2 + active.offsetWidth / 2,
-        behavior: reducedMotion.matches ? 'auto' : 'smooth',
-      });
-    }
-  }
 
   counter.textContent = `Look ${pad(index + 1)} / ${pad(LOOKS.length)}`;
   houseEl.textContent = look.house;
@@ -73,26 +50,91 @@ function setLook(i, updateHash = true) {
   if (updateHash) history.replaceState(null, '', `#look-${look.id}`);
 }
 
+/* ------------------------------------------------------------- drawer -- */
+
+let drawerOpen = false;
+let lastTrigger = null;
+let engineStarted = false;
+
+/* the engine boots on first open — no point weaving behind a closed door */
+function startEngine() {
+  if (engineStarted) return;
+  engineStarted = true;
+  if (!hasWebGL) {
+    stage.classList.add('no-webgl');
+    return;
+  }
+  import('./atelier.js')
+    .then(({ initAtelier }) => {
+      atelierApi = initAtelier(canvas, { reduced: reducedMotion.matches });
+      atelierApi.setLook(LOOKS[index]);
+    })
+    .catch(() => stage.classList.add('no-webgl'));
+}
+
+function openDrawer(trigger) {
+  if (trigger) lastTrigger = trigger;
+  if (drawerOpen) return;
+  drawerOpen = true;
+  drawer.classList.add('open');
+  scrim.classList.add('on');
+  document.documentElement.classList.add('drawer-lock');
+  startEngine();
+  closeBtn.focus({ preventScroll: true });
+}
+
+function closeDrawer() {
+  if (!drawerOpen) return;
+  drawerOpen = false;
+  drawer.classList.remove('open');
+  scrim.classList.remove('on');
+  document.documentElement.classList.remove('drawer-lock');
+  history.replaceState(null, '', location.pathname + location.search);
+  if (lastTrigger?.isConnected) lastTrigger.focus({ preventScroll: true });
+  lastTrigger = null;
+}
+
+closeBtn.addEventListener('click', closeDrawer);
+scrim.addEventListener('click', closeDrawer);
+
 document.getElementById('look-prev').addEventListener('click', () => setLook(index - 1));
 document.getElementById('look-next').addEventListener('click', () => setLook(index + 1));
 document.addEventListener('keydown', (e) => {
+  if (!drawerOpen) return;
+  if (e.key === 'Escape') { closeDrawer(); return; }
   if (e.target.closest('input, textarea')) return;
   if (e.key === 'ArrowLeft') setLook(index - 1);
   if (e.key === 'ArrowRight') setLook(index + 1);
 });
 
+/* keep focus inside the dialog while it is open */
+drawer.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const focusables = drawer.querySelectorAll('button, [href], [tabindex]:not([tabindex="-1"])');
+  if (!focusables.length) return;
+  const first = focusables[0];
+  const last = focusables[focusables.length - 1];
+  if (e.shiftKey && document.activeElement === first) { last.focus(); e.preventDefault(); }
+  else if (!e.shiftKey && document.activeElement === last) { first.focus(); e.preventDefault(); }
+});
+
 function lookFromHash() {
   const id = location.hash.replace(/^#look-/, '');
   const i = LOOKS.findIndex((l) => l.id === id);
-  return i >= 0 ? i : 0;
+  return i >= 0 ? i : -1;
 }
-window.addEventListener('hashchange', () => setLook(lookFromHash(), false));
+window.addEventListener('hashchange', () => {
+  const i = lookFromHash();
+  if (i < 0) return;
+  setLook(i, false);
+  openDrawer();
+});
 
 /* ----------------------------------------------------------- lookbook -- */
 
 /* The collection, lined up: every photograph as a card. Hovering floats
-   the image up and the loupe inspects it; choosing a card sends the
-   look up to the stage to be woven. */
+   the image up and the loupe inspects it; choosing a card slides out
+   the runway drawer where the look is woven. */
 const grid = document.getElementById('lookbook-grid');
 
 for (const [i, look] of LOOKS.entries()) {
@@ -116,7 +158,7 @@ grid.addEventListener('click', (e) => {
   const btn = e.target.closest('.lookbook-watch');
   if (!btn) return;
   setLook(Number(btn.dataset.lookIndex));
-  stage.scrollIntoView({ behavior: reducedMotion.matches ? 'auto' : 'smooth', block: 'start' });
+  openDrawer(btn);
 });
 
 /* card loupe (hover-capable pointers only — touch users have the stage) */
@@ -134,12 +176,13 @@ if (matchMedia('(hover: hover) and (pointer: fine)').matches) {
     const gb = grid.getBoundingClientRect();
     const px = e.clientX - ib.left;
     const py = e.clientY - ib.top;
-    const r = cardLoupe.offsetWidth / 2;
+    const rx = cardLoupe.offsetWidth / 2;
+    const ry = cardLoupe.offsetHeight / 2;
     cardLoupe.style.backgroundImage = `url("${img.currentSrc || img.src}")`;
     cardLoupe.style.backgroundSize = `${ib.width * CARD_ZOOM}px ${ib.height * CARD_ZOOM}px`;
     cardLoupe.style.backgroundPosition =
-      `${-(px * CARD_ZOOM - r)}px ${-(py * CARD_ZOOM - r)}px`;
-    cardLoupe.style.transform = `translate(${e.clientX - gb.left - r}px, ${e.clientY - gb.top - r}px)`;
+      `${-(px * CARD_ZOOM - rx)}px ${-(py * CARD_ZOOM - ry)}px`;
+    cardLoupe.style.transform = `translate(${e.clientX - gb.left - rx}px, ${e.clientY - gb.top - ry}px)`;
     cardLoupe.classList.add('on');
   });
   grid.addEventListener('mouseleave', () => cardLoupe.classList.remove('on'));
@@ -178,13 +221,14 @@ function showLoupeAt(clientX, clientY) {
     return;
   }
   const sb = stage.getBoundingClientRect();
-  const r = loupe.offsetWidth / 2;
+  const rx = loupe.offsetWidth / 2;
+  const ry = loupe.offsetHeight / 2;
   loupe.style.filter = `brightness(${rect.lift ?? 1})`;
   loupe.style.backgroundImage = `url("${LOOKS[index].image}")`;
   loupe.style.backgroundSize = `${rect.w * LOUPE_ZOOM}px ${rect.h * LOUPE_ZOOM}px`;
   loupe.style.backgroundPosition =
-    `${-((px - rect.x) * LOUPE_ZOOM - r)}px ${-((py - rect.y) * LOUPE_ZOOM - r)}px`;
-  loupe.style.transform = `translate(${clientX - sb.left - r}px, ${clientY - sb.top - r}px)`;
+    `${-((px - rect.x) * LOUPE_ZOOM - rx)}px ${-((py - rect.y) * LOUPE_ZOOM - ry)}px`;
+  loupe.style.transform = `translate(${clientX - sb.left - rx}px, ${clientY - sb.top - ry}px)`;
   loupe.classList.add('on');
   if (!hintDone) { hintDone = true; hint.classList.remove('on'); }
 }
@@ -231,22 +275,9 @@ const hintPoll = setInterval(() => {
   }
 }, 600);
 
-/* -------------------------------------------------------------- stage -- */
+/* --------------------------------------------------------------- init -- */
 
-const hasWebGL = webglAvailable();
-
-if (hasWebGL) {
-  lazyInit(stage, () => {
-    import('./atelier.js')
-      .then(({ initAtelier }) => {
-        atelierApi = initAtelier(canvas, { reduced: reducedMotion.matches });
-        atelierApi.setLook(LOOKS[index]);
-      })
-      .catch(() => stage.classList.add('no-webgl'));
-  });
-} else {
-  stage.classList.add('no-webgl');
-}
-
-setLook(lookFromHash(), false);
+const initial = lookFromHash();
+setLook(Math.max(0, initial), false);
+if (initial >= 0) openDrawer();     /* deep link: straight onto the runway */
 initCommon();

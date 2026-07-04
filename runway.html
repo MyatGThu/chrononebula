@@ -42,40 +42,17 @@
     <section class="page-hero">
       <p class="page-kicker rv">The Show</p>
       <h1 class="rv">Runway 8888</h1>
-      <p class="page-lede rv">Fourteen houses, fourteen looks, one runway at the end of time. Each garment is woven live from a hundred thousand points of light — choose a house and watch its couture take shape.</p>
+      <p class="page-lede rv">Fourteen houses, fourteen looks, one runway at the end of time. Each garment is woven live from a hundred thousand points of light — choose a look and watch its couture take shape.</p>
     </section>
 
-    <section class="atelier" aria-label="The looks">
-      <div class="atelier-stage rv">
-        <canvas id="atelier-canvas" aria-hidden="true"></canvas>
-        <div class="runway-fallback" id="atelier-fallback" aria-hidden="true"></div>
-
-        <aside class="glass look-panel" id="look-panel" aria-live="polite">
-          <p class="look-count" id="look-count"></p>
-          <p class="look-house" id="look-house"></p>
-          <h2 class="look-title" id="look-title"></h2>
-          <p class="look-notes" id="look-notes"></p>
-          <p class="look-materials" id="look-materials"></p>
-          <ul class="swatches look-swatches" id="look-swatches"></ul>
-        </aside>
-
-        <div class="atelier-hud">
-          <button class="atelier-arrow" id="look-prev" aria-label="Previous look">&larr;</button>
-          <button class="atelier-arrow" id="look-next" aria-label="Next look">&rarr;</button>
-        </div>
-      </div>
-
-      <div class="runway-chips" id="runway-chips" role="group" aria-label="Choose a house"></div>
-      <noscript><p class="page-hero"><span>The runway needs JavaScript to walk. The looks are described on the Clans page.</span></p></noscript>
-    </section>
-
-    <section class="lookbook" aria-label="The lookbook">
+    <section class="lookbook" aria-label="The collection">
       <header class="lookbook-head">
         <p class="page-kicker rv">The Collection</p>
         <h2 class="rv">Fourteen looks, up close</h2>
-        <p class="page-lede rv">The photographs behind the weave. Hover a look to inspect the fabric; choose one to watch it woven on the stage above.</p>
+        <p class="page-lede rv">Hover a look to inspect the fabric; choose <em>watch it woven</em> and the runway slides out to materialize it from light.</p>
       </header>
       <div class="lookbook-grid" id="lookbook-grid"></div>
+      <noscript><p class="page-lede"><span>The runway needs JavaScript to walk. The looks are described on the Clans page.</span></p></noscript>
     </section>
 
     <section class="epilogue">
@@ -83,6 +60,32 @@
       <a class="btn btn-ghost rv" href="clans.html">Meet the thirteen clans</a>
     </section>
   </main>
+
+  <div class="runway-scrim" id="runway-scrim" aria-hidden="true"></div>
+  <aside class="runway-drawer" id="runway-drawer" role="dialog" aria-modal="true" aria-label="Runway 8888 — the weave">
+    <div class="drawer-head">
+      <p class="drawer-title">Runway 8888</p>
+      <button class="drawer-close" id="runway-close" aria-label="Close the runway">&#10005;</button>
+    </div>
+    <div class="atelier-stage">
+      <canvas id="atelier-canvas" aria-hidden="true"></canvas>
+      <div class="runway-fallback" id="atelier-fallback" aria-hidden="true"></div>
+
+      <aside class="glass look-panel" id="look-panel" aria-live="polite">
+        <p class="look-count" id="look-count"></p>
+        <p class="look-house" id="look-house"></p>
+        <h2 class="look-title" id="look-title"></h2>
+        <p class="look-notes" id="look-notes"></p>
+        <p class="look-materials" id="look-materials"></p>
+        <ul class="swatches look-swatches" id="look-swatches"></ul>
+      </aside>
+
+      <div class="atelier-hud">
+        <button class="atelier-arrow" id="look-prev" aria-label="Previous look">&larr;</button>
+        <button class="atelier-arrow" id="look-next" aria-label="Next look">&rarr;</button>
+      </div>
+    </div>
+  </aside>
 
   <footer class="footer">
     <div class="footer-grid">
