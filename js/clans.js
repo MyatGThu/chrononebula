@@ -46,10 +46,13 @@ const SCENES = {
   'apex': 'The unrevealed leader of the Apex: a prismatic silhouette that refuses a single color',
 };
 
-/* the codex */
+/* the codex: every clan except the two given the featured treatment
+   above, so no house appears twice on the page */
+const FEATURED = new Set(['black-chronoa', 'white-nova']);
 const codex = document.getElementById('clan-codex');
 
 for (const clan of CLANS) {
+  if (FEATURED.has(clan.id)) continue;
   const card = document.createElement('article');
   card.className = 'clan-card rv' + (clan.unknown ? ' unknown' : '');
   card.id = `clan-${clan.id}`;

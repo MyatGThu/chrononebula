@@ -62,8 +62,13 @@ node .claude/skills/photography-direction/compose.mjs \
 ```
 
 Flags: `--angle` and `--light` (ids from `--list`), `--subject`, `--backdrop`,
-`--model` (label only), `--dark-skin`, `--json`. Defaults: `three-quarter` ×
-`void-chiaroscuro`. Take the `prompt` string and pass it to the Higgsfield MCP
+`--model` (label only), `--dark-skin`, `--photoreal`, `--json`. Defaults:
+`three-quarter` × `void-chiaroscuro`. **`--photoreal`** swaps the fashion-lens
+line for a film-photograph texture block — visible pores, nose-bridge redness,
+forearm veins, anatomically real hands, ISO-400 grain across the whole frame,
+and an explicit "no retouching / not an illustration" clause. It's the antidote
+to the plastic, over-smoothed faces models default to; field-tested on the
+ChronoNebula clan-leader portraits. Take the `prompt` string and pass it to the Higgsfield MCP
 `generate_image` (with the Melina `soul_id` for identity) or any model.
 
 ## The recipes, and the physics that makes them work

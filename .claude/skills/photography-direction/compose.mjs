@@ -141,6 +141,23 @@ const LENS_FASHION =
   'Shot on an 85mm lens at f/8 for razor-sharp garment and fabric detail (not a shallow f/1.4 blur), ' +
   'photorealistic, luxury campaign editorial.';
 
+/* --photoreal: a film-photograph texture block that fights the plastic,
+   over-retouched look most models default to. Names real imperfections
+   (pores, nose-bridge redness, forearm veins), demands anatomically real
+   hands, and asks for ISO-400 grain across the WHOLE frame — not just the
+   face — plus an explicit "no retouching / not an illustration" clause.
+   Field-tested on the ChronoNebula clan-leader portraits. */
+const PHOTOREAL =
+  'SKIN TEXTURE: natural human skin texture throughout — visible pores on the nose and cheeks, ' +
+  'subtle texture on the chest and arms, no smoothing or digital retouching; natural tonal variation ' +
+  '(slight redness around the nose bridge, faint visible veins on the inner forearm and hands); ' +
+  'authentic imperfections preserved. HANDS: full anatomical realism — visible knuckle creases, ' +
+  'natural tendon definition, slightly visible veins; fingernails short, unpolished, natural. ' +
+  'FILM GRAIN: heavy ISO 400 film grain throughout the entire frame — on arms, chest and hands as well ' +
+  'as the face — breaking up all smooth surfaces, not selectively applied. A real film photograph: ' +
+  'no skin smoothing, no frequency separation, no retouching. Photorealistic, NOT an illustration, ' +
+  'NOT a painting, NOT concept art, NOT a 3D render.';
+
 function list() {
   console.log('\nCAMERA ANGLES (--angle):');
   for (const [id, a] of Object.entries(ANGLES)) console.log(`  ${id.padEnd(18)} ${a.name}\n${' '.repeat(20)}${a.use}`);
@@ -169,14 +186,16 @@ const light = LIGHTS[lightId];
 if (!angle) { console.error(`Unknown --angle "${angleId}". Run --list.`); process.exit(1); }
 if (!light) { console.error(`Unknown --light "${lightId}". Run --list.`); process.exit(1); }
 
+const photoreal = has('--photoreal');
+
 const parts = [
-  'Cinematic luxury fashion campaign photograph.',
+  photoreal ? 'Ultra-realistic cinematic FILM PHOTOGRAPH.' : 'Cinematic luxury fashion campaign photograph.',
   `${angle.keywords}.`,
   `${subject}.`,
   `${backdrop}.`,
   `${light.recipe}.`,
   darkSkin ? DARK_SKIN_NOTE : null,
-  LENS_FASHION,
+  photoreal ? PHOTOREAL : LENS_FASHION,
   'No text, no typography, no logos, no watermarks anywhere in the frame.',
 ].filter(Boolean);
 

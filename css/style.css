@@ -664,6 +664,7 @@ a { color: var(--ink); }
   gap: clamp(1.5rem, 4vw, 4rem);
   align-items: center;
   margin-bottom: clamp(4rem, 9vh, 7rem);
+  scroll-margin-top: 84px;   /* the jump index now targets the features too */
 }
 .feature-nova { grid-template-columns: minmax(0, 6fr) minmax(0, 7fr); }
 .feature-nova .feature-media { order: -1; }
