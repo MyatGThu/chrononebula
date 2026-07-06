@@ -3,9 +3,13 @@
 # directory that Claude Code does NOT load. A human/agent reviews the
 # contents in the diff before anything moves to .claude/skills/.
 #
-# Pinned source:
+# Pinned sources:
 #   - github.com/multica-ai/andrej-karpathy-skills @ 2c60614
 #     (karpathy-guidelines — behavioral guidelines skill, MIT)
+#   - github.com/vercel-labs/skills @ 2adcfe5
+#     (find-skills — skill-discovery helper, official Vercel Labs)
+#   - github.com/Leonxlnx/taste-skill @ b177427
+#     (taste-skill / design-taste-frontend — anti-slop frontend design, MIT)
 name: Stage agent skills
 
 on:
@@ -36,6 +40,36 @@ jobs:
             exit 1
           fi
 
+      - name: Fetch find-skills (pinned commit, official Vercel Labs)
+        run: |
+          git clone -q https://github.com/vercel-labs/skills /tmp/stage/vercel
+          git -C /tmp/stage/vercel checkout -q 2adcfe5a4cce0ce5f4d5547a997b2a161ec5d127
+          echo "pinned at: $(git -C /tmp/stage/vercel rev-parse HEAD)"
+          dir=/tmp/stage/vercel/skills/find-skills
+          if [ -f "$dir/SKILL.md" ]; then
+            cp -rL "$dir" /tmp/stage/out/find-skills
+            echo "staged find-skills"
+          else
+            echo "NOT FOUND — repo layout:"
+            find /tmp/stage/vercel -name SKILL.md -not -path '*/.git/*'
+            exit 1
+          fi
+
+      - name: Fetch taste-skill (pinned commit)
+        run: |
+          git clone -q https://github.com/Leonxlnx/taste-skill /tmp/stage/taste
+          git -C /tmp/stage/taste checkout -q b17742737e796305d829b3ad39eda3add0d79060
+          echo "pinned at: $(git -C /tmp/stage/taste rev-parse HEAD)"
+          dir=/tmp/stage/taste/skills/taste-skill
+          if [ -f "$dir/SKILL.md" ]; then
+            cp -rL "$dir" /tmp/stage/out/taste-skill
+            echo "staged taste-skill"
+          else
+            echo "NOT FOUND — repo layout:"
+            find /tmp/stage/taste -name SKILL.md -not -path '*/.git/*'
+            exit 1
+          fi
+
       - name: Quarantine under skills-review/
         run: |
           rm -rf skills-review
@@ -49,5 +83,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add skills-review
-          git commit -m "Stage karpathy-guidelines under skills-review/ (pending review)" || echo "nothing to commit"
+          git commit -m "Stage find-skills + taste-skill under skills-review/ (pending review)" || echo "nothing to commit"
           git push
