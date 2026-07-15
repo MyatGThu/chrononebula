@@ -74,7 +74,8 @@ require http.)
 1. Push this folder to a GitHub repository (as the repo root).
 2. In the repo: Settings → Pages → Source: `Deploy from a branch`,
    Branch: `main`, folder `/ (root)`.
-3. The site appears at `https://<username>.github.io/<repo>/`.
+3. The site appears at `https://<username>.github.io/<repo>/` — for this
+   repository, that is **<https://myatgthu.github.io/chrononebula/>**.
 
 The `.nojekyll` file is required so Pages serves the `vendor/` and
 `assets/` folders untouched.
