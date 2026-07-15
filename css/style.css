@@ -419,40 +419,69 @@ a { color: var(--ink); }
   overflow: hidden;   /* clip the scroll-away media zoom */
 }
 
-.hero-media { position: absolute; inset: 0; overflow: hidden; }
-.hero-img {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  /* Melina stands in the right third: bias the crop so she survives
-     portrait framings */
-  object-position: 68% 30%;
-  filter: saturate(0.88) brightness(0.94);
-  transition: opacity 1600ms ease;
-}
-/* the campaign rotation: later frames crossfade over the LCP still,
-   which stays visible without JavaScript */
-.hero-img.dim { opacity: 0; }
-.hero-frame { opacity: 0; }
-.hero-frame.on { opacity: 1; }
-@media (prefers-reduced-motion: reduce) {
-  .hero-img { transition: none; }
-}
+.hero-stage { position: absolute; inset: 0; overflow: hidden; }
 .hero-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
 }
+
+/* the Quantum Lumina sigil — a chrono-astrolabe drawn in light */
+.hero-sigil {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding-bottom: 12vh;   /* bias the sigil up; copy sits below its core */
+  pointer-events: none;
+}
+.hero-sigil .sigil { width: min(86vmin, 760px); height: auto; display: block; overflow: visible; }
+.hero-hud {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.hero-hud svg { width: 100%; height: 100%; display: block; }
+
+/* spin / orbit around the SVG centre (350,350 in the 700 viewBox) */
+.sig-spin-slow, .sig-spin-med, .sig-spin-fast, .sig-sat, .sig-pulse, .sig-core {
+  transform-box: view-box;
+  transform-origin: 350px 350px;
+}
+.sig-spin-slow { animation: sig-spin 120s linear infinite; }
+.sig-spin-med  { animation: sig-spin 70s linear infinite reverse; }
+.sig-spin-fast { animation: sig-spin 34s linear infinite; }
+.sig-sat   { animation: sig-spin 26s linear infinite; }
+.sig-sat-2 { animation: sig-spin 40s linear infinite reverse; }
+@keyframes sig-spin { to { transform: rotate(360deg); } }
+
+/* solid rings draw themselves on first paint (JS only; static otherwise) */
+.sig-draw   { stroke-dasharray: 1885; stroke-dashoffset: 1885; }
+.sig-draw-2 { stroke-dasharray: 942;  stroke-dashoffset: 942; }
+.js .sig-draw   { animation: sig-draw 2.4s var(--ease-out) 0.2s forwards; }
+.js .sig-draw-2 { animation: sig-draw 2.4s var(--ease-out) 0.5s forwards; }
+@keyframes sig-draw { to { stroke-dashoffset: 0; } }
+
+/* the core: a breathing heart of light with expanding pulse rings */
+.sig-core { animation: sig-core 3.6s ease-in-out infinite; }
+@keyframes sig-core { 0%, 100% { opacity: 0.8; } 50% { opacity: 1; } }
+.sig-pulse { opacity: 0; animation: sig-pulse 4.6s var(--ease-out) infinite; }
+.sig-pulse-2 { animation-delay: 2.3s; }
+@keyframes sig-pulse {
+  0% { transform: scale(0.7); opacity: 0.75; }
+  100% { transform: scale(2.7); opacity: 0; }
+}
+.sig-halo { animation: sig-halo 8s ease-in-out infinite; transform-box: view-box; transform-origin: 350px 350px; }
+@keyframes sig-halo { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
 .hero-grade {
   position: absolute;
   inset: 0;
+  pointer-events: none;
   background:
-    linear-gradient(to top, rgba(5, 5, 5, 0.96) 0%, rgba(5, 5, 5, 0.42) 34%, rgba(5, 5, 5, 0.18) 60%, rgba(5, 5, 5, 0.55) 100%),
-    linear-gradient(100deg, rgba(5, 5, 5, 0.78) 0%, rgba(5, 5, 5, 0.12) 55%),
-    radial-gradient(90% 60% at 50% 44%, rgba(47, 208, 160, 0.08), transparent 70%);
+    radial-gradient(64% 52% at 50% 40%, rgba(47, 208, 160, 0.07), transparent 68%),
+    linear-gradient(to top, rgba(10, 10, 10, 0.94) 0%, rgba(10, 10, 10, 0.35) 38%, rgba(10, 10, 10, 0) 64%);
 }
 
 .hero-copy {
@@ -514,16 +543,26 @@ a { color: var(--ink); }
     animation: hero-rise 1100ms var(--ease-out) both;
   }
   .js .hero-line-2 span { animation-delay: 120ms; }
+  .js .hero-kicker,
   .js .hero-sub,
   .js .hero-tag,
   .js .hero-cta {
     animation: hero-fade 900ms var(--ease-out) both;
   }
   .js .hero-motto { animation: hero-fade 900ms var(--ease-out) both; }
-  .js .hero-sub { animation-delay: 420ms; }
-  .js .hero-motto { animation-delay: 500ms; }
-  .js .hero-tag { animation-delay: 600ms; }
-  .js .hero-cta { animation-delay: 740ms; }
+  .js .hero-kicker { animation-delay: 300ms; }
+  .js .hero-sub { animation-delay: 460ms; }
+  .js .hero-motto { animation-delay: 540ms; }
+  .js .hero-tag { animation-delay: 640ms; }
+  .js .hero-cta { animation-delay: 780ms; }
+}
+
+.hero-kicker {
+  color: var(--chrome);
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  font-size: 0.78rem;
+  margin: 0 0 1.1rem;
 }
 @keyframes hero-rise {
   from { transform: translateY(110%); }
@@ -600,8 +639,8 @@ a { color: var(--ink); }
   opacity: clamp(0, calc(1 - var(--hp, 0) * 1.4), 1);
   will-change: transform, opacity;
 }
-.mo .hero-media {
-  transform: scale(calc(1 + var(--hp, 0) * 0.16));
+.mo .hero-stage {
+  transform: scale(calc(1 + var(--hp, 0) * 0.14));
   will-change: transform;
 }
 
@@ -1955,6 +1994,54 @@ a { color: var(--ink); }
 
 @media (max-width: 900px) {
   .method-cols { grid-template-columns: 1fr; }
+}
+
+/* Visual Language ---------------------------------------------------------- */
+.visual {
+  padding: clamp(6rem, 13vh, 9rem) var(--pad-x);
+  border-top: 1px solid var(--line-soft);
+  text-align: center;
+}
+.visual-head { max-width: 46rem; margin: 0 auto clamp(2.5rem, 6vh, 4rem); }
+.visual-lede { color: var(--ink-dim); margin: 0 auto; max-width: 54ch; }
+.visual-lede em { font-family: var(--font-display); font-style: italic; color: var(--chrome); }
+
+.spectrum { margin: 0 auto clamp(2.4rem, 6vh, 3.5rem); max-width: 900px; }
+.spectrum svg { width: 100%; height: auto; display: block; overflow: visible; }
+/* the spectrum bar wipes open when the block scrolls into view */
+.spec-bar {
+  transform-box: fill-box;
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 1.3s var(--ease-expo) 0.15s;
+}
+.mo .spectrum.mo-in .spec-bar { transform: scaleX(1); }
+.no-js .spec-bar, .mo-reduce .spec-bar { transform: scaleX(1); transition: none; }
+
+.palette {
+  list-style: none; margin: 0 auto clamp(2.2rem, 5vh, 3rem); padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center;
+  gap: clamp(1rem, 2.5vw, 2.2rem); max-width: 980px;
+}
+.palette li { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9rem; }
+.palette i { width: 26px; height: 26px; border-radius: 6px; flex: none; display: block; }
+.palette span { color: var(--ink); }
+.palette code {
+  color: var(--chrome); font-family: var(--font-body);
+  letter-spacing: 0.05em; opacity: 0.82; font-size: 0.82rem;
+}
+
+.feel {
+  list-style: none; margin: 0 auto; padding: 0;
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 0.7rem; max-width: 780px;
+}
+.feel li {
+  font-family: var(--font-display);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 0.5rem 1.25rem;
+  font-size: 0.95rem;
+  color: var(--ink-dim);
 }
 
 /* --------------------------------------------------------------------------

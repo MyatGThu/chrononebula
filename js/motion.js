@@ -138,7 +138,7 @@ export function initMotion(root = document) {
   const layers = media.map((el) => ({ el, top: 0, h: 0, range: 46 }));
 
   const hero = document.querySelector('.hero');
-  const heroMedia = document.querySelector('.hero-media');
+  const heroMedia = document.querySelector('.hero-stage');
   const heroCopy = document.querySelector('.hero-copy');
 
   function measure() {

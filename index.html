@@ -8,7 +8,7 @@
   <meta property="og:title" content="ChronoNebula AI × Fashion — designed by Quantum Lumina AI">
   <meta property="og:description" content="Timeless Fashion From 8888 AD. Quantum Lumina AI designs not garments, but civilizations, stories, and identities.">
   <meta property="og:url" content="https://myatgthu.github.io/chrononebula/">
-  <meta property="og:image" content="https://myatgthu.github.io/chrononebula/assets/melina-hero.jpg">
+  <meta property="og:image" content="https://myatgthu.github.io/chrononebula/assets/outfits/black-chronoa.jpg">
   <meta name="theme-color" content="#0a0a0a">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%232FD0A0' stroke-width='6'/%3E%3Ccircle cx='50' cy='16' r='9' fill='%232FD0A0'/%3E%3C/svg%3E">
   <link rel="preload" href="assets/fonts/cinzel.woff2" as="font" type="font/woff2" crossorigin>
@@ -43,13 +43,80 @@
 
     <!-- ============================== HERO ============================== -->
     <section class="hero" id="top">
-      <div class="hero-media" aria-hidden="true">
-        <img class="hero-img" src="assets/melina-hero.jpg" alt="" fetchpriority="high"
-             width="1600" height="900">
+      <div class="hero-stage" aria-hidden="true">
         <canvas class="hero-canvas" id="hero-canvas"></canvas>
+
+        <!-- the Quantum Lumina sigil: a chrono-astrolabe woven from light -->
+        <div class="hero-sigil" data-tilt="0.9">
+          <svg class="sigil" viewBox="0 0 700 700" role="img" aria-hidden="true">
+            <defs>
+              <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stop-color="#57e0b8" stop-opacity="0.9"/>
+                <stop offset="35%" stop-color="#2fd0a0" stop-opacity="0.35"/>
+                <stop offset="100%" stop-color="#2fd0a0" stop-opacity="0"/>
+              </radialGradient>
+            </defs>
+            <circle class="sig-halo" cx="350" cy="350" r="300" fill="url(#coreGlow)"/>
+            <!-- fine tick ring (dashes fake the ticks) -->
+            <circle class="sig-ring sig-spin-slow" cx="350" cy="350" r="332" fill="none"
+                    stroke="var(--chrome)" stroke-opacity="0.35" stroke-width="1" stroke-dasharray="1 8"/>
+            <!-- drawn emerald ring -->
+            <circle class="sig-ring sig-draw" cx="350" cy="350" r="300" fill="none"
+                    stroke="var(--emerald)" stroke-opacity="0.8" stroke-width="1.5"/>
+            <!-- dashed orbit, counter-spin -->
+            <circle class="sig-ring sig-spin-med" cx="350" cy="350" r="266" fill="none"
+                    stroke="var(--emerald)" stroke-opacity="0.55" stroke-width="1.5" stroke-dasharray="22 12"/>
+            <!-- 12 chrono marks -->
+            <circle class="sig-ring sig-spin-slow" cx="350" cy="350" r="238" fill="none"
+                    stroke="var(--chrome)" stroke-opacity="0.4" stroke-width="3" stroke-dasharray="3 121.5"/>
+            <!-- tilted orbital ellipse with satellites -->
+            <g class="sig-orbit" transform="rotate(-19 350 350)">
+              <ellipse cx="350" cy="350" rx="252" ry="86" fill="none"
+                       stroke="var(--emerald-lift)" stroke-opacity="0.5" stroke-width="1.3"/>
+              <g class="sig-sat">
+                <circle cx="602" cy="350" r="5.5" fill="var(--emerald-lift)"/>
+              </g>
+              <g class="sig-sat sig-sat-2">
+                <circle cx="98" cy="350" r="3.5" fill="var(--chrome)"/>
+              </g>
+            </g>
+            <!-- inner drawn ring -->
+            <circle class="sig-ring sig-draw sig-draw-2" cx="350" cy="350" r="150" fill="none"
+                    stroke="var(--emerald)" stroke-opacity="0.7" stroke-width="1.5"/>
+            <circle class="sig-ring sig-spin-fast" cx="350" cy="350" r="120" fill="none"
+                    stroke="var(--chrome)" stroke-opacity="0.5" stroke-width="1" stroke-dasharray="10 9"/>
+            <!-- crosshair axes -->
+            <g class="sig-axes" stroke="var(--chrome)" stroke-opacity="0.16" stroke-width="1">
+              <line x1="350" y1="18" x2="350" y2="682"/>
+              <line x1="18" y1="350" x2="682" y2="350"/>
+            </g>
+            <!-- the core: pulse rings + heart of light -->
+            <circle class="sig-pulse" cx="350" cy="350" r="54" fill="none"
+                    stroke="var(--emerald-lift)" stroke-width="1.5"/>
+            <circle class="sig-pulse sig-pulse-2" cx="350" cy="350" r="54" fill="none"
+                    stroke="var(--emerald-lift)" stroke-width="1.5"/>
+            <circle cx="350" cy="350" r="30" fill="none" stroke="var(--emerald)" stroke-opacity="0.9" stroke-width="1.5"/>
+            <circle class="sig-core" cx="350" cy="350" r="15" fill="var(--emerald-lift)"/>
+          </svg>
+        </div>
+
+        <!-- corner HUD frame -->
+        <div class="hero-hud" data-tilt="0.4">
+          <svg viewBox="0 0 1200 760" preserveAspectRatio="none" aria-hidden="true">
+            <g fill="none" stroke="var(--chrome)" stroke-opacity="0.28" stroke-width="1.2">
+              <path d="M64 120 h44 M64 120 v44"/>
+              <path d="M1136 120 h-44 M1136 120 v44"/>
+              <path d="M64 640 h44 M64 640 v-44"/>
+              <path d="M1136 640 h-44 M1136 640 v-44"/>
+            </g>
+          </svg>
+        </div>
+
         <div class="hero-grade"></div>
       </div>
+
       <div class="hero-copy">
+        <p class="hero-kicker">Supreme Creative Intelligence</p>
         <h1 class="hero-title">
           <span class="hero-line"><span>Chrono</span></span>
           <span class="hero-line hero-line-2"><span>Nebula</span></span>
@@ -177,6 +244,55 @@
           <a class="clan-runway-link" href="runway.html#look-black-chronoa">Walk the Black Chronoa look &rarr;</a>
         </aside>
       </div>
+    </section>
+
+    <!-- ======================== VISUAL LANGUAGE ========================= -->
+    <section class="visual" id="visual">
+      <div class="visual-head">
+        <p class="page-kicker rv">Visual Language</p>
+        <h2 class="rv">Drawn in emerald and obsidian</h2>
+        <p class="visual-lede rv">One question rules every surface — <em>what would people wear in 8888&nbsp;AD?</em> Five colours answer it: a spectrum from obsidian void to silver chrome, lit by a single luminous emerald.</p>
+      </div>
+
+      <figure class="spectrum rv">
+        <svg viewBox="0 0 1000 200" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+          <defs>
+            <linearGradient id="specGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"  stop-color="#0A0A0A"/>
+              <stop offset="26%" stop-color="#014D40"/>
+              <stop offset="52%" stop-color="#2FD0A0"/>
+              <stop offset="78%" stop-color="#2E2E2E"/>
+              <stop offset="100%" stop-color="#F5F5F5"/>
+            </linearGradient>
+          </defs>
+          <rect class="spec-bar" x="40" y="92" width="920" height="26" rx="13" fill="url(#specGrad)"/>
+          <g class="spec-ticks" stroke="var(--chrome)" stroke-opacity="0.45" stroke-width="1">
+            <line x1="60"  y1="92"  x2="60"  y2="52"/>
+            <line x1="300" y1="92"  x2="300" y2="40"/>
+            <line x1="540" y1="118" x2="540" y2="164"/>
+            <line x1="780" y1="92"  x2="780" y2="52"/>
+            <line x1="940" y1="118" x2="940" y2="164"/>
+          </g>
+        </svg>
+      </figure>
+
+      <ul class="palette" aria-label="System palette">
+        <li class="rv"><i style="background:#0A0A0A; box-shadow: inset 0 0 0 1px rgba(255,255,255,.14);"></i><span>Obsidian Black</span><code>#0A0A0A</code></li>
+        <li class="rv"><i style="background:#014D40;"></i><span>Dark Emerald</span><code>#014D40</code></li>
+        <li class="rv"><i style="background:#C0C0C0;"></i><span>Silver Chrome</span><code>#C0C0C0</code></li>
+        <li class="rv"><i style="background:#2E2E2E;"></i><span>Graphite Gray</span><code>#2E2E2E</code></li>
+        <li class="rv"><i style="background:#F5F5F5;"></i><span>Cosmic White</span><code>#F5F5F5</code></li>
+      </ul>
+
+      <ul class="feel" aria-label="Every design should feel">
+        <li class="rv">Timeless</li>
+        <li class="rv">Cinematic</li>
+        <li class="rv">Architectural</li>
+        <li class="rv">Futuristic</li>
+        <li class="rv">Luxurious</li>
+        <li class="rv">Emotional</li>
+        <li class="rv">Innovative</li>
+      </ul>
     </section>
 
     <!-- ============================ UNIVERSE ============================= -->
