@@ -205,6 +205,32 @@ if (coreSection && coreCanvas) {
   }
 }
 
+/* Aurora — an emerald curtain that breathes behind the manifesto */
+const auroraCanvas = document.getElementById('aurora-canvas');
+const manifesto = document.getElementById('manifesto');
+if (auroraCanvas && manifesto && hasWebGL) {
+  lazyInit(manifesto, () => {
+    import('./aurora.js')
+      .then(({ initAurora }) => initAurora(auroraCanvas, { reduced: reducedMotion.matches }))
+      .catch(() => auroraCanvas.remove());
+  }, '200px');
+} else if (auroraCanvas) {
+  auroraCanvas.remove();
+}
+
+/* Finale — the epilogue collapses into a single point of light */
+const finaleCanvas = document.getElementById('finale-canvas');
+const epilogue = document.getElementById('epilogue');
+if (finaleCanvas && epilogue && hasWebGL) {
+  lazyInit(epilogue, () => {
+    import('./finale.js')
+      .then(({ initFinale }) => initFinale(finaleCanvas, { section: epilogue, reduced: reducedMotion.matches }))
+      .catch(() => finaleCanvas.remove());
+  }, '300px');
+} else if (finaleCanvas) {
+  finaleCanvas.remove();
+}
+
 /* The laboratory tiles (inside the Quantum Lumina AI section) */
 const labHost = document.getElementById('lumina');
 if (labHost) {

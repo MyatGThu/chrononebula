@@ -3,6 +3,9 @@
    call initCommon() after they have rendered their dynamic content so
    the reveal observer sees the finished DOM. */
 
+import { initSmooth } from './smooth.js';
+import { initMotion } from './motion.js';
+
 export const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)');
 
 export function webglAvailable() {
@@ -57,24 +60,11 @@ export function initCommon() {
     }
   });
 
-  /* --------------------------------------------------------- reveals -- */
-
-  const revealed = new IntersectionObserver((entries) => {
-    for (const entry of entries) {
-      if (!entry.isIntersecting) continue;
-      entry.target.classList.add('in');
-      revealed.unobserve(entry.target);
-    }
-  }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-
-  const groups = new Map();
-  document.querySelectorAll('.rv').forEach((el) => {
-    const parent = el.parentElement;
-    const idx = groups.get(parent) ?? 0;
-    groups.set(parent, idx + 1);
-    el.style.setProperty('--rv-delay', `${Math.min(idx, 5) * 70}ms`);
-    revealed.observe(el);
-  });
+  /* ------------------------------------------- scroll + motion engine -- */
+  /* momentum scroll first (fine-pointer, non-reduced), then the pervasive
+     reveal + parallax choreography over the finished DOM */
+  initSmooth();
+  initMotion();
 
   /* ---------------------------------------------------------- footer -- */
 

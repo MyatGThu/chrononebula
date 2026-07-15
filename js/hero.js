@@ -42,12 +42,14 @@ export function initHero(canvas) {
     blending: THREE.AdditiveBlending,
     uniforms: {
       uTime: { value: 0 },
+      uScroll: { value: 0 },
       uPixelRatio: { value: renderer.getPixelRatio() },
     },
     vertexShader: /* glsl */ `
       attribute vec3 aSeed;
       attribute float aShade;
       uniform float uTime;
+      uniform float uScroll;
       uniform float uPixelRatio;
       varying float vAlpha;
       varying float vShade;
@@ -56,12 +58,15 @@ export function initHero(canvas) {
         float t = uTime * aSeed.y;
         p.x += sin(t * 0.22 + aSeed.x) * 1.1;
         p.y += sin(t * 0.16 + aSeed.x * 1.7) * 0.9 + sin(uTime * 0.05 + aSeed.x) * 0.4;
+        /* leaving the hero, the field blows outward and thins, as if the
+           camera were accelerating up through it into the world beyond */
+        p += normalize(p + vec3(0.001)) * uScroll * uScroll * 5.5 * (0.6 + aSeed.z);
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
-        float size = mix(1.2, 3.4, aSeed.z);
+        float size = mix(1.2, 3.4, aSeed.z) * (1.0 + uScroll * 1.4);
         gl_PointSize = size * uPixelRatio * (9.0 / -mv.z);
         float tw = 0.55 + 0.45 * sin(uTime * (0.6 + aSeed.y) + aSeed.x * 3.0);
-        vAlpha = tw * smoothstep(-14.0, -2.0, mv.z);
+        vAlpha = tw * smoothstep(-14.0, -2.0, mv.z) * (1.0 - clamp(uScroll * 0.75, 0.0, 0.85));
         vShade = aShade;
       }
     `,
@@ -114,11 +119,12 @@ export function initHero(canvas) {
     pointer.x += (pointer.tx - pointer.x) * 0.04;
     pointer.y += (pointer.ty - pointer.y) * 0.04;
 
-    /* scroll parallax: sampled inside the loop, no scroll listener */
+    /* scroll parallax + dispersal: sampled inside the loop, no listener */
     const scroll = Math.min(scrollY / innerHeight, 1.2);
+    material.uniforms.uScroll.value = scroll;
     camera.position.x = pointer.x * 0.6;
-    camera.position.y = -pointer.y * 0.4 + scroll * 2.2;
-    camera.lookAt(0, scroll * 2.2, 0);
+    camera.position.y = -pointer.y * 0.4 + scroll * 2.6;
+    camera.lookAt(0, scroll * 2.6, 0);
     renderer.render(scene, camera);
   }
 
