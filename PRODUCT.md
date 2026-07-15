@@ -23,7 +23,7 @@ frameworks, the brand values and rules), then the universe it builds:
 eight planets, thirteen clans, and Runway 8888 — a particle-woven couture
 show starring the house model Melina Jones Voss. A scroll-driven Chrono
 Core assembles the First Monolith from light. The site is itself a piece of
-the fiction: "fashion is not clothing; fashion is identity, memory,
+the fiction: "Fashion is not clothing. Fashion is identity, memory,
 technology, and storytelling." Success is a visitor who scrolls the whole
 atlas, meets Lumina, walks the runway through several looks, and shares the
 link.

@@ -238,6 +238,22 @@ a { color: var(--ink); }
               backdrop-filter 300ms ease;
   border-bottom: 1px solid transparent;
 }
+/* Before scroll the nav is transparent and can float over a bright patch
+   of the hero photo; a soft top scrim guarantees the (dim) links keep
+   >=4.5:1 regardless of the image. It fades out once the glass fill lands. */
+.nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 168%;
+  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.5) 55%, rgba(5, 5, 5, 0));
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 300ms ease;
+}
+.nav.scrolled::before { opacity: 0; }
 .nav.scrolled {
   background: rgba(5, 5, 5, 0.72);
   border-bottom-color: var(--line-soft);
@@ -1622,7 +1638,13 @@ a { color: var(--ink); }
 @media (prefers-reduced-motion: reduce) {
   .corescroll { height: auto; }
   .corescroll-stage { position: relative; height: min(88vh, 720px); }
-  .core-line { transition: none; }
+  /* no scrubbing to crossfade the lines, so stack all three and show them */
+  .core-line {
+    grid-area: auto;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
 }
 
 /* --------------------------------------------------------------------------

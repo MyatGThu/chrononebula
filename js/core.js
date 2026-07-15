@@ -177,6 +177,10 @@ export function initCore(canvas, { section, reduced = false } = {}) {
   pivot.add(points);
   scene.add(pivot);
 
+  /* set once the reduced-motion path has drawn its single frame: setSize
+     resets the WebGL backing store, so without a rAF loop we must repaint
+     the settled monolith after every resize or it blanks. */
+  let staticFrame = false;
   function resize() {
     const w = canvas.clientWidth;
     const h = canvas.clientHeight;
@@ -184,6 +188,7 @@ export function initCore(canvas, { section, reduced = false } = {}) {
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
     camera.updateProjectionMatrix();
+    if (staticFrame) renderer.render(scene, camera);
   }
   resize();
   const ro = new ResizeObserver(resize);
@@ -252,6 +257,7 @@ export function initCore(canvas, { section, reduced = false } = {}) {
     material.uniforms.uTime.value = 1.2;
     apply(STILL_P);
     renderer.render(scene, camera);
+    staticFrame = true;   /* resize() now repaints instead of blanking */
     running = false;
   } else {
     let intersecting = true;
