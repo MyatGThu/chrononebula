@@ -1,8 +1,8 @@
-/* AI Lab tiles: three lightweight 2D-canvas material studies.
+/* Laboratory tiles: three lightweight 2D-canvas material studies.
    Each tile pauses offscreen; under reduced motion it renders one
    composed frame and stops. */
 
-const EMERALD = 'rgba(0, 255, 179,';
+const EMERALD = 'rgba(47, 208, 160,';
 const SILVER = 'rgba(197, 202, 208,';
 
 function setupCanvas(canvas) {

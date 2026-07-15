@@ -4,8 +4,41 @@
    unavailable. The clans codex and Runway 8888 live on their own
    pages (clans.html, runway.html). */
 
-import { PLANETS, clanById } from './data.js';
+import {
+  PLANETS, clanById,
+  LUMINA, AGENTS, COLLECTION_FRAMEWORK, GARMENT_FRAMEWORK, VALUES, RULES,
+} from './data.js';
 import { initCommon, reducedMotion, webglAvailable, lazyInit } from './common.js';
+
+/* --------------------------------------------------- Quantum Lumina AI -- */
+/* Render the spec-driven content (personality, activation prompt, the six
+   agents, the frameworks, values and rules) from data.js before
+   initCommon() so the reveal observer sees the finished DOM. */
+
+const setList = (id, html) => {
+  const el = document.getElementById(id);
+  if (el) el.innerHTML = html;
+};
+
+setList('lumina-traits', LUMINA.traits.map((t) => `<li>${t}</li>`).join(''));
+
+setList('lumina-activation',
+  LUMINA.activation.map((line, i) =>
+    `<p class="console-line"><span class="console-prompt" aria-hidden="true">${i === 0 ? '&gt;' : '&middot;'}</span>${line}</p>`
+  ).join(''));
+
+setList('agents-grid', AGENTS.map((a) => `
+  <article class="agent-card rv">
+    <p class="agent-n">${a.n}</p>
+    <h3>${a.name}</h3>
+    <p class="agent-purpose">${a.purpose}</p>
+    <ul class="agent-outputs">${a.outputs.map((o) => `<li>${o}</li>`).join('')}</ul>
+  </article>`).join(''));
+
+setList('collection-framework', COLLECTION_FRAMEWORK.map((s) => `<li>${s}</li>`).join(''));
+setList('garment-framework', GARMENT_FRAMEWORK.map((s) => `<li>${s}</li>`).join(''));
+setList('values-list', VALUES.map((v) => `<li>${v}</li>`).join(''));
+setList('rules-list', RULES.map((r) => `<li>${r}</li>`).join(''));
 
 /* ------------------------------------------------------ universe: panel -- */
 
@@ -152,11 +185,60 @@ if (hasWebGL) {
   galaxyCanvas.remove();
 }
 
-/* Lab tiles */
-lazyInit(document.getElementById('lab'), () => {
-  import('./lab.js').then(({ initLab }) => {
-    initLab(document.querySelectorAll('.lab-cell[data-sim]'), reducedMotion.matches);
-  }).catch(() => {});
-});
+/* Chrono Core — the scroll-scrubbed 3D centerpiece. Booted lazily just
+   before the section arrives; initCore renders a settled static frame when
+   reduced motion is set, and the CSS fallback stands in without WebGL. */
+const coreSection = document.getElementById('core');
+const coreCanvas = document.getElementById('core-canvas');
+if (coreSection && coreCanvas) {
+  if (hasWebGL) {
+    lazyInit(coreSection, () => {
+      import('./core.js')
+        .then(({ initCore }) => initCore(coreCanvas, {
+          section: coreSection,
+          reduced: reducedMotion.matches,
+        }))
+        .catch(() => coreSection.classList.add('no-webgl'));
+    }, '300px');
+  } else {
+    coreSection.classList.add('no-webgl');
+  }
+}
+
+/* Aurora — an emerald curtain that breathes behind the manifesto */
+const auroraCanvas = document.getElementById('aurora-canvas');
+const manifesto = document.getElementById('manifesto');
+if (auroraCanvas && manifesto && hasWebGL) {
+  lazyInit(manifesto, () => {
+    import('./aurora.js')
+      .then(({ initAurora }) => initAurora(auroraCanvas, { reduced: reducedMotion.matches }))
+      .catch(() => auroraCanvas.remove());
+  }, '200px');
+} else if (auroraCanvas) {
+  auroraCanvas.remove();
+}
+
+/* Finale — the epilogue collapses into a single point of light */
+const finaleCanvas = document.getElementById('finale-canvas');
+const epilogue = document.getElementById('epilogue');
+if (finaleCanvas && epilogue && hasWebGL) {
+  lazyInit(epilogue, () => {
+    import('./finale.js')
+      .then(({ initFinale }) => initFinale(finaleCanvas, { section: epilogue, reduced: reducedMotion.matches }))
+      .catch(() => finaleCanvas.remove());
+  }, '300px');
+} else if (finaleCanvas) {
+  finaleCanvas.remove();
+}
+
+/* The laboratory tiles (inside the Quantum Lumina AI section) */
+const labHost = document.getElementById('lumina');
+if (labHost) {
+  lazyInit(labHost, () => {
+    import('./lab.js').then(({ initLab }) => {
+      initLab(document.querySelectorAll('.lab-cell[data-sim]'), reducedMotion.matches);
+    }).catch(() => {});
+  });
+}
 
 initCommon();

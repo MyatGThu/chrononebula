@@ -56,7 +56,7 @@ function setLook(i, updateHash = true) {
 
   if (atelierApi) atelierApi.setLook(look);
   if (!hasWebGL) {
-    const g = look.colors ?? ['#8a7fae', '#c9b26b'];
+    const g = look.colors ?? ['#014d40', '#2fd0a0'];
     stage.style.setProperty('--fb1', g[2] ?? g[0]);
     stage.style.setProperty('--fb2', g[1]);
   }

@@ -98,7 +98,7 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
   }
 
   /* Chrono Core */
-  const coreGlow = haloTexture('rgba(0,255,179,1)');
+  const coreGlow = haloTexture('rgba(47,208,160,1)');
   {
     const core = new THREE.Mesh(
       new THREE.IcosahedronGeometry(0.62, 3),
@@ -107,7 +107,7 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
         fragmentShader: planetFragment,
         uniforms: {
           uColor: { value: new THREE.Color('#053a2c') },
-          uGlow: { value: new THREE.Color('#00ffb3') },
+          uGlow: { value: new THREE.Color('#2fd0a0') },
           uSelected: { value: 0.6 },
         },
       })
@@ -116,7 +116,7 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
     const halo = new THREE.Sprite(
       new THREE.SpriteMaterial({
         map: coreGlow,
-        color: 0x00ffb3,
+        color: 0x2fd0a0,
         transparent: true,
         opacity: 0.5,
         depthWrite: false,
@@ -183,7 +183,7 @@ export function initGalaxy({ canvas, labelLayer, reduced = false, onSelect }) {
       const ring = new THREE.Mesh(
         new THREE.RingGeometry(p.radius * 0.46, p.radius * 0.62, 48),
         new THREE.MeshBasicMaterial({
-          color: 0x00ffb3,
+          color: 0x2fd0a0,
           transparent: true,
           opacity: 0.4,
           side: THREE.DoubleSide,

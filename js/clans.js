@@ -27,23 +27,23 @@ indexNav.innerHTML = CLANS
   .map((clan) => `<a class="clan-index-chip" href="#clan-${clan.id}">${clan.name}</a>`)
   .join('');
 
-/* the codex plates: a portrait of each clan's leader, dressed in the
-   clan's own palette and fashion ideology, alt text in the voice of
-   the atlas */
+/* the codex plates: the house model Melina Jones Voss wearing each clan's
+   official Runway 8888 look — the Codex, worn. Alt text in the voice of
+   the atlas, describing the couture rather than a clan character. */
 const SCENES = {
-  'black-chronoa': 'Queen Ani Thu Zard of the Black Chronoa, crowned in obsidian and chrono-gold before the First Monolith',
-  'white-nova': 'The architect-priestess of White Nova in absolute white, avatar of NEXUS, before the spires of Nova Nexus',
-  'rogue-lunaris': 'The High Moon Oracle of Rogue Lunaris, veiled in rouge crimson beneath the eclipsed moon',
-  'lumina': 'The High Luminary of Lumina in celestial white and astral gold, crowned by twin rings of time',
-  'solar-punk': 'The Solar Punk matriarch in living gold-and-leaf couture above the gardens of Neon Metro',
-  'cyberpunk': 'A Cyberpunk netrunner leader in carbon-black armor lit cyber-blue and magenta in the Neon Abyss',
-  'chrono-punk': 'The Chrono Punk nomad chieftain in salvaged patchwork armor before the chrono-monuments of Yangon',
-  'ocean-void': 'A Tide Council elder of Ocean Void in lymnora-cyan water-silk beneath the living sea',
-  'black-order': 'A Grand Commander of the Black Order in obsidian plate before the Cathedral fortress',
-  'dragon-cypher': 'A Dragon Cypher forge-master in ember-shedding forge-silk above the magma of Benoth',
-  'martian-clan': 'A councillor of the Martian Clan in a rust-dyed duster amid the canyon dust of Zylo',
-  'bio-punk': 'A Circle of Growth leader of Bio Punk in a living bloom-gown before the Verdantia Arcology',
-  'apex': 'The unrevealed leader of the Apex: a prismatic silhouette that refuses a single color',
+  'black-chronoa': 'Melina Jones Voss in the Black Chronoa look: a void-black coronation coat threaded with chrono gold',
+  'white-nova': 'Melina Jones Voss in the White Nova look: an absolute-white structural gown cut like the towers of Nova Nexus',
+  'rogue-lunaris': 'Melina Jones Voss in the Rogue Lunaris look: layered rouge-crimson eclipse veils',
+  'lumina': 'Melina Jones Voss in the Lumina look: a celestial-white gown flecked with astral gold beneath a starlit cape',
+  'solar-punk': 'Melina Jones Voss in the Solar Punk look: a canopy gown grown from living photosynthetic leaves',
+  'cyberpunk': 'Melina Jones Voss in the Cyberpunk look: a carbon-black rig lit in neon cyber-blue',
+  'chrono-punk': 'Melina Jones Voss in the Chrono Punk look: a coat patchworked from salvaged eras',
+  'ocean-void': 'Melina Jones Voss in the Ocean Void look: a lymnora-cyan water-silk gown trailing pearls',
+  'black-order': 'Melina Jones Voss in the Black Order look: obsidian plate-weave crowned by a steel perimeter ring',
+  'dragon-cypher': 'Melina Jones Voss in the Dragon Cypher look: a forge-silk mantle shedding live embers',
+  'martian-clan': 'Melina Jones Voss in the Martian Clan look: a rust-dyed pioneer duster carrying canyon dust',
+  'bio-punk': 'Melina Jones Voss in the Bio Punk look: a grown gown blooming fungal-pink at the hem',
+  'apex': 'Melina Jones Voss in the Apex look: a prismatic silhouette cycling through every spectrum',
 };
 
 /* the codex: every clan except the two given the featured treatment
@@ -68,8 +68,8 @@ for (const clan of CLANS) {
 
   card.innerHTML = `
     <figure class="clan-card-media">
-      <img src="assets/clans/${clan.id}.jpg" alt="${SCENES[clan.id] ?? ''}"
-           loading="lazy" width="960" height="540">
+      <img src="assets/outfits/${clan.id}.jpg" alt="${SCENES[clan.id] ?? ''}"
+           loading="lazy" width="720" height="1280">
     </figure>
     <div class="clan-card-content">
       <header class="clan-card-head">

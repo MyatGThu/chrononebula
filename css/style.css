@@ -1,23 +1,31 @@
 /* ==========================================================================
    ChronoNebula AI × Fashion — design system
-   Theme: locked dark. Deep Void #050505, Lunar White ink, Nebula Emerald
-   as the single INTERACTIVE accent. Nova Gold is the editorial voice:
-   section kickers and clan content only, never on controls.
+   Quantum Lumina AI visual language (System Spec v1.0):
+     Obsidian Black #0A0A0A · Dark Emerald Green #014D40 · Silver Chrome
+     #C0C0C0 · Graphite Gray #2E2E2E · Cosmic White #F5F5F5.
+   Dark Emerald is the signature FILL (buttons, monolith washes). Because
+   #014D40 fails text contrast on obsidian, interactive accents use a
+   luminous tint of it (#2FD0A0, ~10:1 on obsidian) — the one true accent.
+   Silver Chrome is the editorial voice: section kickers and meta only,
+   never on controls.
    Radius rule: pills for interactive chips/buttons, 16px for panels,
    4px for swatch tiles. Z scale: nav 100, menu 110, skip 120,
    scrim 130, drawer 131 (the runway drawer is the one true modal).
    ========================================================================== */
 
 :root {
-  --void: #050505;
-  --surface: #101013;
-  --surface-2: #17171b;
-  --ink: #f2f2f4;
-  --ink-dim: #a9abb6;
-  --emerald: #00ffb3;
-  --emerald-deep: #00b380;
-  --gold: #c9b26b;
-  --on-accent: #031a12;
+  --void: #0a0a0a;              /* Obsidian Black (spec) — the base */
+  --surface: #141416;
+  --surface-2: #1c1c1f;
+  --graphite: #2e2e2e;         /* Graphite Gray (spec) */
+  --ink: #f5f5f5;              /* Cosmic White (spec) */
+  --ink-dim: #a6a8ac;          /* dimmed silver chrome — body secondary */
+  --chrome: #c0c0c0;           /* Silver Chrome (spec) — editorial kicker */
+  --emerald: #2fd0a0;          /* luminous emerald — the single accent */
+  --emerald-deep: #014d40;     /* Dark Emerald Green (spec) — signature fill */
+  --emerald-lift: #57e0b8;     /* accent, lifted (hover) */
+  --gold: var(--chrome);       /* gold retired: the editorial voice is chrome */
+  --on-accent: #04231b;        /* ink on a luminous-emerald fill */
   --line: rgba(255, 255, 255, 0.1);
   --line-soft: rgba(255, 255, 255, 0.06);
 
@@ -26,6 +34,8 @@
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
   --r-panel: 16px;
   --r-tile: 4px;
@@ -47,7 +57,24 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* the scrollbar is hidden across the whole site; scrolling still works
+     (wheel, touch, keyboard, momentum engine) — the void has no chrome */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+/* the momentum engine drives scrollTo itself, so native smoothing is off */
+html.has-smooth { scroll-behavior: auto; }
+html::-webkit-scrollbar,
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+/* inner scroll panes (runway drawer, universe panel, look panel) hide theirs too */
+.runway-drawer,
+.universe-panel,
+.look-panel,
+.lookbook-media,
+[data-scrollpane] { scrollbar-width: none; -ms-overflow-style: none; }
+.runway-drawer::-webkit-scrollbar,
+.universe-panel::-webkit-scrollbar,
+.look-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -147,8 +174,10 @@ a { color: var(--ink); }
 .btn:active { transform: scale(0.97); }
 
 .btn-solid {
-  background: var(--emerald);
-  color: var(--on-accent);
+  background: var(--emerald-deep);
+  color: var(--ink);
+  border: 1px solid var(--emerald);
+  box-shadow: 0 0 0 0 rgba(47, 208, 160, 0);
 }
 .btn-ghost {
   border: 1px solid var(--line);
@@ -156,7 +185,10 @@ a { color: var(--ink); }
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .btn-solid:hover { background: #59ffcb; }
+  .btn-solid:hover {
+    border-color: var(--emerald-lift);
+    box-shadow: 0 0 28px -6px rgba(47, 208, 160, 0.55);
+  }
   .btn-ghost:hover { border-color: var(--emerald); color: var(--emerald); }
 }
 
@@ -225,6 +257,22 @@ a { color: var(--ink); }
               backdrop-filter 300ms ease;
   border-bottom: 1px solid transparent;
 }
+/* Before scroll the nav is transparent and can float over a bright patch
+   of the hero photo; a soft top scrim guarantees the (dim) links keep
+   >=4.5:1 regardless of the image. It fades out once the glass fill lands. */
+.nav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 168%;
+  background: linear-gradient(to bottom, rgba(5, 5, 5, 0.9), rgba(5, 5, 5, 0.5) 55%, rgba(5, 5, 5, 0));
+  pointer-events: none;
+  z-index: -1;
+  transition: opacity 300ms ease;
+}
+.nav.scrolled::before { opacity: 0; }
 .nav.scrolled {
   background: rgba(5, 5, 5, 0.72);
   border-bottom-color: var(--line-soft);
@@ -354,6 +402,7 @@ a { color: var(--ink); }
   min-height: 100dvh;
   display: flex;
   align-items: flex-end;
+  overflow: hidden;   /* clip the scroll-away media zoom */
 }
 
 .hero-media { position: absolute; inset: 0; overflow: hidden; }
@@ -389,7 +438,7 @@ a { color: var(--ink); }
   background:
     linear-gradient(to top, rgba(5, 5, 5, 0.96) 0%, rgba(5, 5, 5, 0.42) 34%, rgba(5, 5, 5, 0.18) 60%, rgba(5, 5, 5, 0.55) 100%),
     linear-gradient(100deg, rgba(5, 5, 5, 0.78) 0%, rgba(5, 5, 5, 0.12) 55%),
-    radial-gradient(90% 60% at 50% 44%, rgba(0, 255, 179, 0.07), transparent 70%);
+    radial-gradient(90% 60% at 50% 44%, rgba(47, 208, 160, 0.08), transparent 70%);
 }
 
 .hero-copy {
@@ -427,13 +476,23 @@ a { color: var(--ink); }
   color: var(--gold);
   letter-spacing: 0.18em;
 }
+.hero-motto {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  color: var(--chrome);
+  font-size: clamp(1rem, 1.7vw, 1.25rem);
+  letter-spacing: 0.05em;
+  margin: 0 0 1rem;
+}
 .hero-tag {
   font-size: clamp(1.05rem, 1.8vw, 1.3rem);
   color: var(--ink-dim);
-  max-width: 34ch;
+  max-width: 40ch;
   margin-bottom: 2.2rem;
   text-wrap: pretty;
 }
+.hero-tag strong { color: var(--ink); font-weight: 500; }
 
 /* Hero load choreography (runs once; content visible by default without JS) */
 @media (prefers-reduced-motion: no-preference) {
@@ -446,9 +505,11 @@ a { color: var(--ink); }
   .js .hero-cta {
     animation: hero-fade 900ms var(--ease-out) both;
   }
+  .js .hero-motto { animation: hero-fade 900ms var(--ease-out) both; }
   .js .hero-sub { animation-delay: 420ms; }
-  .js .hero-tag { animation-delay: 540ms; }
-  .js .hero-cta { animation-delay: 680ms; }
+  .js .hero-motto { animation-delay: 500ms; }
+  .js .hero-tag { animation-delay: 600ms; }
+  .js .hero-cta { animation-delay: 740ms; }
 }
 @keyframes hero-rise {
   from { transform: translateY(110%); }
@@ -460,27 +521,99 @@ a { color: var(--ink); }
 }
 
 /* --------------------------------------------------------------------------
-   Reveal on scroll (never gates visibility: only active with JS + motion OK)
+   Motion engine — pervasive scroll choreography (js/motion.js)
+   Progressive enhancement: without .mo everything is fully visible. Each
+   reveal fits WHAT it reveals; a reveal transform and a parallax transform
+   never share an element, so effects never fight. Reveals play once, so no
+   persistent will-change on them.
    -------------------------------------------------------------------------- */
 
-@media (prefers-reduced-motion: no-preference) {
-  .js .rv {
-    opacity: 0;
-    transform: translateY(26px);
-    transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out);
-    transition-delay: var(--rv-delay, 0ms);
-  }
-  .js .rv.in { opacity: 1; transform: none; }
+.mo [data-reveal="rise"],
+.mo [data-reveal="blur"],
+.mo [data-reveal="lift"],
+.mo [data-reveal="pop"],
+.mo [data-reveal="fade"] {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-expo),
+              transform 1000ms var(--ease-expo),
+              filter 900ms var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 60ms);
 }
+.mo [data-reveal="rise"] { transform: translate3d(0, 34px, 0); }
+.mo [data-reveal="blur"] { transform: translate3d(0, 26px, 0); filter: blur(16px); }
+.mo [data-reveal="lift"] { transform: translate3d(0, 64px, 0) scale(0.96); }
+.mo [data-reveal="pop"]  {
+  transform: translate3d(0, 14px, 0) scale(0.86);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+.mo [data-reveal].mo-in { opacity: 1; transform: none; filter: none; }
+
+/* media wipes open behind its own clip mask */
+.mo [data-reveal="mask"] {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1150ms var(--ease-expo);
+}
+.mo [data-reveal="mask"].mo-in { clip-path: inset(0 0 0 0); }
+
+/* kinetic type: each word rises and untilts out of its own mask */
+.mo-w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.mo-wi {
+  display: inline-block;
+  transform: translateY(118%) rotate(4deg);
+  transform-origin: left bottom;
+  transition: transform 950ms var(--ease-expo);
+  transition-delay: calc(var(--wi, 0) * 55ms);
+}
+.mo [data-reveal="word"].mo-in .mo-wi { transform: none; }
+
+/* parallax layers: JS writes --par each frame; --pscale gives crop room so
+   the drift never exposes an edge of the (overflow-hidden) frame */
+.mo [data-parallax] {
+  will-change: transform;
+  transform: translate3d(0, var(--par, 0px), 0) scale(var(--pscale, 1));
+}
+
+/* hero signature: the campaign lifts and dissolves as the viewer leaves it,
+   the imagery pushing in behind — driven by --hp (0 at top, 1 one screen on) */
+.mo .hero-copy {
+  transform: translate3d(0, calc(var(--hp, 0) * -64px), 0);
+  opacity: clamp(0, calc(1 - var(--hp, 0) * 1.4), 1);
+  will-change: transform, opacity;
+}
+.mo .hero-media {
+  transform: scale(calc(1 + var(--hp, 0) * 0.16));
+  will-change: transform;
+}
+
+/* reduced motion: one quiet crossfade, no transforms, no parallax, no split */
+.mo-reduce [data-reveal] { opacity: 0; transition: opacity 600ms ease; }
+.mo-reduce [data-reveal].mo-in { opacity: 1; }
 
 /* --------------------------------------------------------------------------
    Manifesto
    -------------------------------------------------------------------------- */
 
 .manifesto {
+  position: relative;
   padding: clamp(7rem, 16vh, 11rem) var(--pad-x);
   text-align: center;
+  overflow: hidden;
 }
+.aurora-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.manifesto > :not(.aurora-canvas) { position: relative; z-index: 1; }
 .manifesto-lede {
   font-family: var(--font-display);
   font-weight: 400;
@@ -688,8 +821,8 @@ a { color: var(--ink); }
   height: clamp(20rem, 52vh, 34rem);
   object-fit: cover;
 }
-.feature-chronoa .feature-media img { object-position: 50% 16%; }
-.feature-nova .feature-media img { object-position: 40% 24%; }
+.feature-chronoa .feature-media img { object-position: 50% 14%; }
+.feature-nova .feature-media img { object-position: 50% 14%; }
 
 .feature-kicker {
   color: var(--gold);
@@ -807,6 +940,7 @@ a { color: var(--ink); }
   height: 100%;
   min-height: 280px;
   object-fit: cover;
+  object-position: 50% 16%;
   display: block;
 }
 /* alternate plate sides for rhythm down the codex */
@@ -944,7 +1078,7 @@ a { color: var(--ink); }
 }
 .wing-runway {
   background:
-    radial-gradient(120% 130% at 100% 0%, rgba(0, 255, 179, 0.12), transparent 60%),
+    radial-gradient(120% 130% at 100% 0%, rgba(47, 208, 160, 0.13), transparent 60%),
     var(--surface);
 }
 .wing h2 {
@@ -1101,7 +1235,7 @@ a { color: var(--ink); }
   box-shadow:
     inset 0 0 0 1px rgba(255, 255, 255, 0.16),
     0 18px 50px rgba(0, 0, 0, 0.6),
-    0 0 0 1px rgba(0, 255, 179, 0.14);
+    0 0 0 1px rgba(47, 208, 160, 0.16);
   opacity: 0;
   transition: opacity 180ms ease;
   pointer-events: none;
@@ -1139,7 +1273,7 @@ a { color: var(--ink); }
   inset: 0;
   display: none;
   background:
-    radial-gradient(34% 60% at 50% 58%, color-mix(in srgb, var(--fb1, #00ffb3) 30%, transparent), transparent 75%),
+    radial-gradient(34% 60% at 50% 58%, color-mix(in srgb, var(--fb1, #2fd0a0) 30%, transparent), transparent 75%),
     radial-gradient(20% 42% at 50% 44%, color-mix(in srgb, var(--fb2, #f2f2f4) 22%, transparent), transparent 70%),
     linear-gradient(to top, #0a0c0e, var(--void) 55%);
 }
@@ -1392,7 +1526,7 @@ a { color: var(--ink); }
 }
 @media (hover: hover) and (pointer: fine) {
   /* the image floats up into the card */
-  .lookbook-card:hover { border-color: rgba(0, 255, 179, 0.35); }
+  .lookbook-card:hover { border-color: rgba(47, 208, 160, 0.35); }
   .lookbook-card:hover .lookbook-media img { transform: translateY(-12px) scale(1.045); }
   .lookbook-watch:hover { text-decoration: underline; text-underline-offset: 4px; }
 }
@@ -1459,7 +1593,7 @@ a { color: var(--ink); }
 .lab-text-alt {
   grid-column: 7 / 13;
   background:
-    radial-gradient(120% 130% at 100% 0%, rgba(0, 255, 179, 0.1), transparent 60%),
+    radial-gradient(120% 130% at 100% 0%, rgba(47, 208, 160, 0.11), transparent 60%),
     var(--surface);
 }
 
@@ -1477,6 +1611,26 @@ a { color: var(--ink); }
   padding: clamp(6rem, 14vh, 10rem) var(--pad-x);
   text-align: center;
 }
+/* only the home finale needs room for the collapsing star */
+#epilogue {
+  position: relative;
+  min-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: clamp(9rem, 22vh, 15rem);
+  overflow: hidden;
+}
+.finale-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+#epilogue > :not(.finale-canvas) { position: relative; z-index: 1; }
 .epilogue-line {
   font-family: var(--font-display);
   font-weight: 400;
@@ -1519,4 +1673,314 @@ a { color: var(--ink); }
 
 @media (max-width: 640px) {
   .footer-meta { text-align: left; }
+}
+
+/* --------------------------------------------------------------------------
+   Chrono Core — scroll-scrubbed 3D centerpiece
+   A tall section pins a full-viewport stage; core.js reads scroll progress
+   and weaves the nebula into the First Monolith. Reduced motion collapses
+   the runway to a single settled frame; no-WebGL shows the fallback wash.
+   -------------------------------------------------------------------------- */
+
+.corescroll { position: relative; height: 300vh; }
+.corescroll-stage {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow: hidden;
+  background: radial-gradient(120% 92% at 50% 44%, #0c1512 0%, var(--void) 66%);
+  border-top: 1px solid var(--line-soft);
+  border-bottom: 1px solid var(--line-soft);
+}
+#core-canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.corescroll-fallback {
+  display: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(20% 46% at 50% 52%, color-mix(in srgb, var(--emerald-deep) 60%, transparent), transparent 72%),
+    radial-gradient(8% 30% at 50% 40%, rgba(47, 208, 160, 0.5), transparent 70%),
+    radial-gradient(120% 90% at 50% 44%, #0c1512, var(--void) 66%);
+}
+.corescroll.no-webgl #core-canvas { display: none; }
+.corescroll.no-webgl .corescroll-fallback { display: block; }
+
+.corescroll-copy {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: clamp(3rem, 12vh, 8rem);
+  padding: 0 var(--pad-x);
+  text-align: center;
+  pointer-events: none;
+}
+.core-eyebrow {
+  color: var(--chrome);
+  font-size: 0.8rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+.core-lines {
+  display: grid;
+  justify-items: center;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.6rem, 4.4vw, 3.1rem);
+  line-height: 1.16;
+  margin: 0 auto;
+  max-width: 20em;
+  min-height: 2.4em;
+}
+.core-line {
+  grid-area: 1 / 1;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 600ms var(--ease-out), transform 600ms var(--ease-out);
+  text-wrap: balance;
+}
+.core-line.on { opacity: 1; transform: none; }
+.core-caption {
+  color: var(--ink-dim);
+  font-size: 0.95rem;
+  max-width: 40ch;
+  margin: 1.4rem auto 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .corescroll { height: auto; }
+  .corescroll-stage { position: relative; height: min(88vh, 720px); }
+  /* no scrubbing to crossfade the lines, so stack all three and show them */
+  .core-line {
+    grid-area: auto;
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* --------------------------------------------------------------------------
+   Quantum Lumina AI
+   -------------------------------------------------------------------------- */
+
+.lumina {
+  padding: clamp(6rem, 13vh, 9rem) var(--pad-x);
+  border-bottom: 1px solid var(--line-soft);
+}
+.lumina-head { max-width: 54rem; }
+.lumina-lede {
+  color: var(--ink-dim);
+  font-size: clamp(1.05rem, 1.8vw, 1.25rem);
+}
+.lumina-traits {
+  list-style: none;
+  padding: 0;
+  margin: 1.6rem 0 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.lumina-traits li {
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--chrome);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0.3rem 0.85rem;
+}
+
+/* the activation console */
+.console {
+  margin: clamp(2.5rem, 6vh, 4rem) 0 0;
+  max-width: 62rem;
+  border: 1px solid var(--line);
+  border-radius: var(--r-panel);
+  background: var(--surface);
+  overflow: hidden;
+}
+.console-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.7rem 1.1rem;
+  border-bottom: 1px solid var(--line-soft);
+  background: color-mix(in srgb, var(--emerald-deep) 26%, var(--surface));
+}
+.console-dots { display: inline-flex; gap: 5px; }
+.console-dots i { width: 9px; height: 9px; border-radius: 50%; background: var(--graphite); }
+.console-dots i:first-child { background: var(--emerald); }
+.console-name {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+}
+.console-body { padding: 1.3rem 1.4rem 1.5rem; }
+.console-line {
+  display: flex;
+  gap: 0.75rem;
+  margin: 0 0 0.85rem;
+  max-width: none;
+  color: var(--ink);
+  font-size: clamp(0.98rem, 1.3vw, 1.08rem);
+  line-height: 1.5;
+}
+.console-line:last-child { margin-bottom: 0; }
+.console-prompt {
+  color: var(--emerald);
+  flex: none;
+  font-family: var(--font-display);
+}
+
+.lumina .lab-grid { margin-top: clamp(2.5rem, 6vh, 4rem); }
+
+/* --------------------------------------------------------------------------
+   The six agents
+   -------------------------------------------------------------------------- */
+
+.agents { padding: clamp(6rem, 13vh, 9rem) var(--pad-x); }
+.agents-head { max-width: 46rem; margin-bottom: clamp(2.5rem, 6vh, 4rem); }
+.agents-head p { color: var(--ink-dim); }
+
+.agents-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1rem;
+}
+.agent-card {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-panel);
+  padding: 1.6rem 1.5rem;
+  background: var(--surface);
+  transition: border-color 250ms ease, transform 250ms var(--ease-out);
+}
+.agent-n {
+  font-family: var(--font-display);
+  color: var(--emerald);
+  font-size: 0.9rem;
+  letter-spacing: 0.2em;
+  margin-bottom: 0.7rem;
+}
+.agent-card h3 { font-size: 1.25rem; font-weight: 500; margin-bottom: 0.5rem; }
+.agent-purpose { color: var(--ink-dim); font-size: 0.97rem; margin-bottom: 1.1rem; }
+.agent-outputs {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+.agent-outputs li {
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: 0.24rem 0.65rem;
+}
+@media (hover: hover) and (pointer: fine) {
+  .agent-card:hover { border-color: rgba(47, 208, 160, 0.35); transform: translateY(-3px); }
+}
+
+/* --------------------------------------------------------------------------
+   The method — frameworks + first collection
+   -------------------------------------------------------------------------- */
+
+.method {
+  padding: clamp(6rem, 13vh, 9rem) var(--pad-x);
+  border-top: 1px solid var(--line-soft);
+}
+.method-head { max-width: 46rem; margin-bottom: clamp(2.5rem, 6vh, 4rem); }
+.method-head p { color: var(--ink-dim); }
+
+.method-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1.15fr;
+  gap: clamp(1.5rem, 4vw, 3rem);
+  align-items: start;
+}
+.method-col h3,
+.first-collection h3 { font-size: 1.2rem; font-weight: 500; margin-bottom: 1rem; }
+
+.framework { margin: 0; padding: 0; list-style: none; counter-reset: fw; }
+.framework li {
+  counter-increment: fw;
+  display: flex;
+  gap: 0.85rem;
+  align-items: baseline;
+  padding: 0.55rem 0;
+  border-top: 1px solid var(--line-soft);
+  color: var(--ink);
+  font-size: 1rem;
+}
+.framework li::before {
+  content: counter(fw, decimal-leading-zero);
+  color: var(--emerald);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  flex: none;
+  width: 1.9em;
+}
+
+.first-collection {
+  border: 1px solid var(--line-soft);
+  border-radius: var(--r-panel);
+  padding: 1.9rem 1.7rem;
+  background:
+    radial-gradient(130% 120% at 100% 0%, color-mix(in srgb, var(--emerald-deep) 34%, transparent), transparent 62%),
+    var(--surface);
+}
+.first-collection p { color: var(--ink-dim); }
+
+@media (max-width: 900px) {
+  .method-cols { grid-template-columns: 1fr; }
+}
+
+/* --------------------------------------------------------------------------
+   Ethos — values + rules
+   -------------------------------------------------------------------------- */
+
+.ethos {
+  padding: clamp(6rem, 13vh, 9rem) var(--pad-x);
+  border-top: 1px solid var(--line-soft);
+}
+.ethos-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(2rem, 5vw, 4.5rem);
+}
+.ethos-col .page-kicker { margin-bottom: 1.3rem; }
+.values, .rules { margin: 0; padding: 0; list-style: none; }
+.values li, .rules li {
+  padding: 0.75rem 0;
+  border-top: 1px solid var(--line-soft);
+  font-size: 1.05rem;
+  color: var(--ink);
+}
+.values li { display: flex; align-items: center; gap: 0.9rem; }
+.values li::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  background: var(--emerald);
+  box-shadow: 0 0 10px var(--emerald);
+}
+.rules { counter-reset: r; }
+.rules li { display: flex; gap: 0.9rem; }
+.rules li::before {
+  counter-increment: r;
+  content: counter(r);
+  color: var(--emerald);
+  font-family: var(--font-display);
+  flex: none;
+  width: 1.4em;
+}
+@media (max-width: 760px) {
+  .ethos-grid { grid-template-columns: 1fr; gap: 2.5rem; }
 }
