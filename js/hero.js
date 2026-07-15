@@ -1,5 +1,5 @@
-/* Hero: a slow field of emerald and silver motes drifting over the city
-   of Cindra, with gentle pointer and scroll parallax. */
+/* Hero: a slow field of luminous-emerald and silver motes drifting over
+   the city of Cindra, with gentle pointer and scroll parallax. */
 
 import * as THREE from '../vendor/three.module.min.js';
 
@@ -72,7 +72,7 @@ export function initHero(canvas) {
         vec2 uv = gl_PointCoord - 0.5;
         float d = length(uv);
         float disc = smoothstep(0.5, 0.08, d);
-        vec3 emerald = vec3(0.0, 1.0, 0.70);
+        vec3 emerald = vec3(0.184, 0.816, 0.627);
         vec3 silver = vec3(0.82, 0.86, 0.88);
         vec3 col = mix(emerald, silver, step(0.72, vShade));
         gl_FragColor = vec4(col, disc * vAlpha * 0.5);

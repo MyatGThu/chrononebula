@@ -79,15 +79,15 @@ const BRAND_LOOK = {
   house: 'House ChronoNebula',
   title: 'Aurora Prima',
   notes: 'The house signature that opens every show: a gown of one hundred thousand points of nebula light, worn by no clan and claimed by all of them. When Aurora Prima leaves the runway, the year 8888 officially begins.',
-  materials: 'Nebula-emerald light-thread · lunar white · nova gold',
+  materials: 'Luminous-emerald light-thread · cosmic white · silver chrome',
   colors: [
-    BRAND.palette.nebulaEmerald,
-    BRAND.palette.lunarWhite,
-    BRAND.palette.chromeSilver,
-    BRAND.palette.novaGold,
-    BRAND.palette.cosmicBlue,
+    BRAND.palette.emeraldLum,
+    BRAND.palette.cosmicWhite,
+    BRAND.palette.silverChrome,
+    BRAND.palette.emerald,
+    BRAND.palette.obsidian,
   ],
-  colorNames: ['Nebula Emerald', 'Lunar White', 'Chrome Silver', 'Nova Gold', 'Cosmic Blue'],
+  colorNames: ['Luminous Emerald', 'Cosmic White', 'Silver Chrome', 'Dark Emerald', 'Obsidian'],
   image: 'assets/outfits/chrononebula.jpg',
 };
 
@@ -104,8 +104,8 @@ const HERITAGE_LOOKS = [
     title: 'Hundred-Shuttle Tide',
     notes: 'The royal acheik was woven on a hundred shuttles, its waves copied from the ripples of the Ayeyarwady. Eight thousand years on, the river is gone but its pattern remains — here rewoven from a hundred shuttles of light, a wrapped column breaking at the floor into a train that still moves like water.',
     materials: 'Lun-taya acheik light-thread · hundred-shuttle weave · river-gold ripple',
-    colors: ['#00FFB3', '#2E8F8A', '#C9B26B', '#F2F2F4', '#050505'],
-    colorNames: ['Nebula Emerald', 'Ayeyarwady Teal', 'River Gold', 'Lunar White', 'Deep Void'],
+    colors: ['#2FD0A0', '#2E8F8A', '#C9B26B', '#F2F2F4', '#0A0A0A'],
+    colorNames: ['Luminous Emerald', 'Ayeyarwady Teal', 'River Gold', 'Cosmic White', 'Obsidian'],
     image: 'assets/outfits/acheik-tide.jpg',
   },
   {

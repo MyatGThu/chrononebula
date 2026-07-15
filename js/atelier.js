@@ -215,7 +215,7 @@ function loadImage(src) {
 }
 
 function brightest(hexes) {
-  if (!hexes || !hexes.length) return '#00ffb3';
+  if (!hexes || !hexes.length) return '#2fd0a0';
   let best = hexes[0], bestL = -1;
   for (const hex of hexes) {
     const c = new THREE.Color(hex);
@@ -359,8 +359,8 @@ export function initAtelier(canvas, { reduced = false } = {}) {
   photo.visible = photoMirror.visible = false;
   scene.add(photo, photoMirror);
 
-  const accent = new THREE.Color('#00ffb3');
-  const accentTarget = new THREE.Color('#00ffb3');
+  const accent = new THREE.Color('#2fd0a0');
+  const accentTarget = new THREE.Color('#2fd0a0');
   const floor = new THREE.Mesh(
     new THREE.PlaneGeometry(7, 30),
     new THREE.ShaderMaterial({
