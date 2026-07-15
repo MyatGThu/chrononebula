@@ -4,7 +4,21 @@
    every card. */
 
 import { CLANS, clanById } from './data.js';
-import { initCommon, reducedMotion } from './common.js';
+import { initCommon, reducedMotion, webglAvailable } from './common.js';
+
+/* the persistent depth void, so the codex floats in the same space as the
+   landing (booted at idle; static frame under reduced motion; removed with
+   no WebGL and the obsidian base stands in) */
+const depthCanvas = document.getElementById('depth-canvas');
+if (depthCanvas && webglAvailable()) {
+  const loadDepth = () => import('./depth.js')
+    .then(({ initDepth }) => initDepth(depthCanvas, { reduced: reducedMotion.matches }))
+    .catch(() => depthCanvas.remove());
+  if ('requestIdleCallback' in window) requestIdleCallback(loadDepth, { timeout: 2200 });
+  else setTimeout(loadDepth, 420);
+} else if (depthCanvas) {
+  depthCanvas.remove();
+}
 
 function swatchItems(clan) {
   if (!clan.palette) return '';
@@ -12,6 +26,47 @@ function swatchItems(clan) {
     .map((c) => `<li><i style="background:${c.hex}"></i>${c.name}</li>`)
     .join('');
 }
+
+/* Each house is drawn as a vector crest generated from its official Codex
+   palette: a ring of colour-segments (one arc per palette colour), concentric
+   palette rings, a tilted orbit, and a heart of accent light. No photograph —
+   pure vector, unique to every clan's colours. */
+function clanCrest(clan) {
+  const cols = (clan.palette || []).map((c) => c.hex).slice(0, 5);
+  const pal = cols.length ? cols : ['#2E2E2E', '#014D40', '#C0C0C0'];
+  const cx = 200, cy = 200, N = pal.length, seg = (2 * Math.PI) / N, gap = 0.1, R = 152;
+  const arcs = pal.map((hex, i) => {
+    const a0 = -Math.PI / 2 + i * seg + gap / 2;
+    const a1 = -Math.PI / 2 + (i + 1) * seg - gap / 2;
+    const x0 = (cx + Math.cos(a0) * R).toFixed(1), y0 = (cy + Math.sin(a0) * R).toFixed(1);
+    const x1 = (cx + Math.cos(a1) * R).toFixed(1), y1 = (cy + Math.sin(a1) * R).toFixed(1);
+    const large = a1 - a0 > Math.PI ? 1 : 0;
+    return `<path d="M${x0} ${y0} A ${R} ${R} 0 ${large} 1 ${x1} ${y1}" fill="none" stroke="${hex}" stroke-width="7" stroke-linecap="round"/>`;
+  }).join('');
+  const inner = pal.slice(0, 3).map((hex, i) =>
+    `<circle cx="${cx}" cy="${cy}" r="${112 - i * 27}" fill="none" stroke="${hex}" stroke-width="1.5" stroke-opacity="0.72"/>`
+  ).join('');
+  const accent = pal[1] || pal[0];
+  return `<svg class="crest" viewBox="0 0 400 400" role="img" aria-hidden="true">
+    <circle class="crest-spin" cx="${cx}" cy="${cy}" r="184" fill="none" stroke="var(--chrome)" stroke-opacity="0.3" stroke-width="1" stroke-dasharray="1 8"/>
+    <g class="crest-arcs">${arcs}</g>
+    ${inner}
+    <g stroke="var(--chrome)" stroke-opacity="0.12"><line x1="200" y1="34" x2="200" y2="366"/><line x1="34" y1="200" x2="366" y2="200"/></g>
+    <ellipse class="crest-orbit" cx="200" cy="200" rx="150" ry="52" fill="none" stroke="${accent}" stroke-opacity="0.5" stroke-width="1.2" transform="rotate(-20 200 200)"/>
+    <circle cx="200" cy="200" r="26" fill="none" stroke="${accent}" stroke-opacity="0.85" stroke-width="1.5"/>
+    <circle class="crest-core" cx="200" cy="200" r="12" fill="${accent}"/>
+  </svg>`;
+}
+
+/* swap the two featured clans' photographs for their vector crests */
+document.querySelectorAll('.feature[id^="clan-"]').forEach((art) => {
+  const clan = clanById(art.id.replace('clan-', ''));
+  const media = art.querySelector('.feature-media');
+  if (!clan || !clan.palette || !media) return;
+  media.classList.add('clan-crest-media');
+  media.style.cssText = `--c1:${clan.palette[0].hex};--c2:${clan.palette[1].hex};--c3:${clan.palette[2].hex};`;
+  media.innerHTML = `<div class="clan-crest">${clanCrest(clan)}</div>`;
+});
 
 /* featured swatch strips (Black Chronoa, White Nova) */
 document.querySelectorAll('.swatches[data-clan]').forEach((ul) => {
@@ -26,25 +81,6 @@ const indexNav = document.getElementById('clan-index');
 indexNav.innerHTML = CLANS
   .map((clan) => `<a class="clan-index-chip" href="#clan-${clan.id}">${clan.name}</a>`)
   .join('');
-
-/* the codex plates: the house model Melina Jones Voss wearing each clan's
-   official Runway 8888 look — the Codex, worn. Alt text in the voice of
-   the atlas, describing the couture rather than a clan character. */
-const SCENES = {
-  'black-chronoa': 'Melina Jones Voss in the Black Chronoa look: a void-black coronation coat threaded with chrono gold',
-  'white-nova': 'Melina Jones Voss in the White Nova look: an absolute-white structural gown cut like the towers of Nova Nexus',
-  'rogue-lunaris': 'Melina Jones Voss in the Rogue Lunaris look: layered rouge-crimson eclipse veils',
-  'lumina': 'Melina Jones Voss in the Lumina look: a celestial-white gown flecked with astral gold beneath a starlit cape',
-  'solar-punk': 'Melina Jones Voss in the Solar Punk look: a canopy gown grown from living photosynthetic leaves',
-  'cyberpunk': 'Melina Jones Voss in the Cyberpunk look: a carbon-black rig lit in neon cyber-blue',
-  'chrono-punk': 'Melina Jones Voss in the Chrono Punk look: a coat patchworked from salvaged eras',
-  'ocean-void': 'Melina Jones Voss in the Ocean Void look: a lymnora-cyan water-silk gown trailing pearls',
-  'black-order': 'Melina Jones Voss in the Black Order look: obsidian plate-weave crowned by a steel perimeter ring',
-  'dragon-cypher': 'Melina Jones Voss in the Dragon Cypher look: a forge-silk mantle shedding live embers',
-  'martian-clan': 'Melina Jones Voss in the Martian Clan look: a rust-dyed pioneer duster carrying canyon dust',
-  'bio-punk': 'Melina Jones Voss in the Bio Punk look: a grown gown blooming fungal-pink at the hem',
-  'apex': 'Melina Jones Voss in the Apex look: a prismatic silhouette cycling through every spectrum',
-};
 
 /* the codex: every clan except the two given the featured treatment
    above, so no house appears twice on the page */
@@ -67,9 +103,8 @@ for (const clan of CLANS) {
     : `<p class="summary">Palette unclassified. The Apex reveal themselves only to the future.</p>`;
 
   card.innerHTML = `
-    <figure class="clan-card-media">
-      <img src="assets/outfits/${clan.id}.jpg" alt="${SCENES[clan.id] ?? ''}"
-           loading="lazy" width="720" height="1280">
+    <figure class="clan-card-media clan-crest-media">
+      <div class="clan-crest">${clanCrest(clan)}</div>
     </figure>
     <div class="clan-card-content">
       <header class="clan-card-head">

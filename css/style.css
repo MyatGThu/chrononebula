@@ -877,6 +877,21 @@ a { color: var(--ink); }
 .feature-chronoa .feature-media img { object-position: 50% 14%; }
 .feature-nova .feature-media img { object-position: 50% 14%; }
 
+/* vector clan crests — each house drawn from its own Codex palette, no photo */
+.clan-crest-media {
+  display: grid;
+  place-items: center;
+  min-height: clamp(20rem, 52vh, 34rem);
+  background:
+    radial-gradient(120% 100% at 50% 16%, color-mix(in srgb, var(--c2, #014d40) 32%, transparent), transparent 62%),
+    var(--surface);
+}
+.clan-card-media.clan-crest-media { min-height: 320px; height: 100%; }
+.clan-crest { width: min(76%, 270px); padding: 6%; }
+.clan-crest .crest { width: 100%; height: auto; display: block; overflow: visible; }
+.crest-spin { transform-box: view-box; transform-origin: 200px 200px; animation: sig-spin 90s linear infinite; }
+.crest-core { transform-box: view-box; transform-origin: 200px 200px; animation: sig-core 3.8s ease-in-out infinite; }
+
 .feature-kicker {
   color: var(--gold);
   font-size: 0.85rem;
