@@ -1,0 +1,44 @@
+# Vendor third-party front-end libraries the same way the site already
+# vendors Three.js: fetch a PINNED version on the CI runner (open egress)
+# and commit the single ESM file under vendor/. No bundler, no import map.
+#
+# Pinned:
+#   - lenis@1.3.11  dist/lenis.mjs  (smooth-scroll, MIT, darkroomengineering)
+name: Fetch vendor libraries
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch Lenis (pinned ESM)
+        run: |
+          mkdir -p vendor
+          url="https://cdn.jsdelivr.net/npm/lenis@1.3.11/dist/lenis.mjs"
+          echo "fetching $url"
+          curl -sSL --fail "$url" -o vendor/lenis.mjs
+          echo "--- head ---"; head -c 400 vendor/lenis.mjs; echo
+          bytes=$(wc -c < vendor/lenis.mjs)
+          echo "size: $bytes bytes"
+          # sanity: must be real JS (has an export), not an HTML error page
+          if ! grep -q "export" vendor/lenis.mjs; then
+            echo "ERROR: no export found — not a valid ESM file"; exit 1
+          fi
+          if grep -qi "<!doctype html" vendor/lenis.mjs; then
+            echo "ERROR: got an HTML page, not the module"; exit 1
+          fi
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor/lenis.mjs
+          git commit -m "Vendor lenis@1.3.11 (smooth-scroll ESM)" || echo "nothing to commit"
+          git push
