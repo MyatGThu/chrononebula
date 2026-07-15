@@ -34,6 +34,8 @@
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-quint: cubic-bezier(0.22, 1, 0.36, 1);
 
   --r-panel: 16px;
   --r-tile: 4px;
@@ -55,7 +57,24 @@
 html {
   scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
+  /* the scrollbar is hidden across the whole site; scrolling still works
+     (wheel, touch, keyboard, momentum engine) — the void has no chrome */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+/* the momentum engine drives scrollTo itself, so native smoothing is off */
+html.has-smooth { scroll-behavior: auto; }
+html::-webkit-scrollbar,
+body::-webkit-scrollbar { width: 0; height: 0; display: none; }
+/* inner scroll panes (runway drawer, universe panel, look panel) hide theirs too */
+.runway-drawer,
+.universe-panel,
+.look-panel,
+.lookbook-media,
+[data-scrollpane] { scrollbar-width: none; -ms-overflow-style: none; }
+.runway-drawer::-webkit-scrollbar,
+.universe-panel::-webkit-scrollbar,
+.look-panel::-webkit-scrollbar { width: 0; height: 0; display: none; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -383,6 +402,7 @@ a { color: var(--ink); }
   min-height: 100dvh;
   display: flex;
   align-items: flex-end;
+  overflow: hidden;   /* clip the scroll-away media zoom */
 }
 
 .hero-media { position: absolute; inset: 0; overflow: hidden; }
@@ -501,27 +521,99 @@ a { color: var(--ink); }
 }
 
 /* --------------------------------------------------------------------------
-   Reveal on scroll (never gates visibility: only active with JS + motion OK)
+   Motion engine — pervasive scroll choreography (js/motion.js)
+   Progressive enhancement: without .mo everything is fully visible. Each
+   reveal fits WHAT it reveals; a reveal transform and a parallax transform
+   never share an element, so effects never fight. Reveals play once, so no
+   persistent will-change on them.
    -------------------------------------------------------------------------- */
 
-@media (prefers-reduced-motion: no-preference) {
-  .js .rv {
-    opacity: 0;
-    transform: translateY(26px);
-    transition: opacity 900ms var(--ease-out), transform 900ms var(--ease-out);
-    transition-delay: var(--rv-delay, 0ms);
-  }
-  .js .rv.in { opacity: 1; transform: none; }
+.mo [data-reveal="rise"],
+.mo [data-reveal="blur"],
+.mo [data-reveal="lift"],
+.mo [data-reveal="pop"],
+.mo [data-reveal="fade"] {
+  opacity: 0;
+  transition: opacity 900ms var(--ease-expo),
+              transform 1000ms var(--ease-expo),
+              filter 900ms var(--ease-expo);
+  transition-delay: calc(var(--i, 0) * 60ms);
 }
+.mo [data-reveal="rise"] { transform: translate3d(0, 34px, 0); }
+.mo [data-reveal="blur"] { transform: translate3d(0, 26px, 0); filter: blur(16px); }
+.mo [data-reveal="lift"] { transform: translate3d(0, 64px, 0) scale(0.96); }
+.mo [data-reveal="pop"]  {
+  transform: translate3d(0, 14px, 0) scale(0.86);
+  transition-delay: calc(var(--i, 0) * 40ms);
+}
+.mo [data-reveal].mo-in { opacity: 1; transform: none; filter: none; }
+
+/* media wipes open behind its own clip mask */
+.mo [data-reveal="mask"] {
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 1150ms var(--ease-expo);
+}
+.mo [data-reveal="mask"].mo-in { clip-path: inset(0 0 0 0); }
+
+/* kinetic type: each word rises and untilts out of its own mask */
+.mo-w {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: top;
+  padding-bottom: 0.16em;
+  margin-bottom: -0.16em;
+}
+.mo-wi {
+  display: inline-block;
+  transform: translateY(118%) rotate(4deg);
+  transform-origin: left bottom;
+  transition: transform 950ms var(--ease-expo);
+  transition-delay: calc(var(--wi, 0) * 55ms);
+}
+.mo [data-reveal="word"].mo-in .mo-wi { transform: none; }
+
+/* parallax layers: JS writes --par each frame; --pscale gives crop room so
+   the drift never exposes an edge of the (overflow-hidden) frame */
+.mo [data-parallax] {
+  will-change: transform;
+  transform: translate3d(0, var(--par, 0px), 0) scale(var(--pscale, 1));
+}
+
+/* hero signature: the campaign lifts and dissolves as the viewer leaves it,
+   the imagery pushing in behind — driven by --hp (0 at top, 1 one screen on) */
+.mo .hero-copy {
+  transform: translate3d(0, calc(var(--hp, 0) * -64px), 0);
+  opacity: clamp(0, calc(1 - var(--hp, 0) * 1.4), 1);
+  will-change: transform, opacity;
+}
+.mo .hero-media {
+  transform: scale(calc(1 + var(--hp, 0) * 0.16));
+  will-change: transform;
+}
+
+/* reduced motion: one quiet crossfade, no transforms, no parallax, no split */
+.mo-reduce [data-reveal] { opacity: 0; transition: opacity 600ms ease; }
+.mo-reduce [data-reveal].mo-in { opacity: 1; }
 
 /* --------------------------------------------------------------------------
    Manifesto
    -------------------------------------------------------------------------- */
 
 .manifesto {
+  position: relative;
   padding: clamp(7rem, 16vh, 11rem) var(--pad-x);
   text-align: center;
+  overflow: hidden;
 }
+.aurora-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+.manifesto > :not(.aurora-canvas) { position: relative; z-index: 1; }
 .manifesto-lede {
   font-family: var(--font-display);
   font-weight: 400;
@@ -1519,6 +1611,26 @@ a { color: var(--ink); }
   padding: clamp(6rem, 14vh, 10rem) var(--pad-x);
   text-align: center;
 }
+/* only the home finale needs room for the collapsing star */
+#epilogue {
+  position: relative;
+  min-height: 86vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: clamp(9rem, 22vh, 15rem);
+  overflow: hidden;
+}
+.finale-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+}
+#epilogue > :not(.finale-canvas) { position: relative; z-index: 1; }
 .epilogue-line {
   font-family: var(--font-display);
   font-weight: 400;
