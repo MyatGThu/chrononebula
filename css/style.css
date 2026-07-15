@@ -113,6 +113,20 @@ body {
   overflow-x: hidden;
 }
 
+/* the persistent parallax starfield sits on the obsidian base, behind all
+   content, so the whole page reads as space rather than flat black */
+.depth-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}
+#main,
+.footer { position: relative; z-index: 1; }
+
 img { max-width: 100%; display: block; }
 
 h1, h2, h3 {
@@ -1714,6 +1728,9 @@ a { color: var(--ink); }
   padding: 0 var(--pad-x);
   text-align: center;
   pointer-events: none;
+  /* the monolith now burns bright behind the copy; a soft shadow keeps the
+     text legible over the luminous field without a visible box */
+  text-shadow: 0 1px 18px rgba(0, 0, 0, 0.78), 0 0 44px rgba(0, 0, 0, 0.55);
 }
 .core-eyebrow {
   color: var(--chrome);

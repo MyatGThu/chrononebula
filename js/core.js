@@ -28,7 +28,7 @@ const RING_R = 2.35;
    marks the glowing seams (vertical edges + ring + crown) */
 function monolithTarget(rand) {
   const roll = rand();
-  if (roll < 0.16) {
+  if (roll < 0.21) {
     /* the temporal ring — a thin tilted torus orbiting the crown */
     const a = rand() * Math.PI * 2;
     const rr = RING_R + (rand() - 0.5) * 0.14;
@@ -55,8 +55,9 @@ function monolithTarget(rand) {
   const face = (rand() * 4) | 0;
   const u = (rand() - 0.5) * 2 * w;
   const [x, z] = face === 0 ? [w, u] : face === 1 ? [-w, u] : face === 2 ? [u, w] : [u, -w];
-  /* energy runs the vertical edges: bright where |u| approaches the edge */
-  const edge = Math.pow(clamp(Math.abs(u) / w, 0, 1), 3) * 0.9;
+  /* energy threads the whole face (soft floor) and burns brightest along
+     the vertical edges — so the shaft reads as luminous, not near-black */
+  const edge = 0.17 + Math.pow(clamp(Math.abs(u) / w, 0, 1), 3) * 0.83;
   return [x, y, z, edge];
 }
 
@@ -68,7 +69,7 @@ export function initCore(canvas, { section, reduced = false } = {}) {
   const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 100);
 
   const mobile = matchMedia('(max-width: 760px)').matches;
-  const COUNT = mobile ? 7000 : 14000;
+  const COUNT = mobile ? 9000 : 24000;
 
   const start = new Float32Array(COUNT * 3);   /* scattered nebula position */
   const target = new Float32Array(COUNT * 3);  /* settled monolith position */
@@ -125,7 +126,7 @@ export function initCore(canvas, { section, reduced = false } = {}) {
       varying float vForm;
       void main() {
         /* per-mote staggered assembly so the monolith builds foot-to-crown */
-        float lead = mix(0.0, 0.55, aRand);
+        float lead = mix(0.0, 0.42, aRand);
         float a = clamp((uAssemble - lead) / (1.0 - lead), 0.0, 1.0);
         a = a * a * (3.0 - 2.0 * a);
         vForm = a;
@@ -141,14 +142,16 @@ export function initCore(canvas, { section, reduced = false } = {}) {
         vec4 mv = modelViewMatrix * vec4(p, 1.0);
         gl_Position = projectionMatrix * mv;
 
-        float size = mix(1.3, 2.7, aRand) * mix(1.0, 0.82, a);
-        gl_PointSize = size * uPixelRatio * (9.0 / -mv.z);
+        float size = mix(1.5, 3.1, aRand) * mix(1.0, 0.86, a);
+        gl_PointSize = size * uPixelRatio * (9.5 / -mv.z);
 
-        /* energy seams pulse once the form has resolved */
-        float pulse = 0.6 + 0.4 * sin(uTime * 2.0 - aTarget.y * 1.4);
-        vEnergy = aEnergy * a * pulse;
-        float tw = 0.7 + 0.3 * sin(uTime * (0.8 + aRand * 2.0) + aRand * 30.0);
-        vAlpha = tw * mix(0.5, 0.95, a) * smoothstep(-24.0, -3.0, mv.z);
+        /* energy seams pulse once the form has resolved, and a bright pulse
+           of light travels up the shaft on a slow cadence (chrono energy) */
+        float pulse = 0.62 + 0.38 * sin(uTime * 2.0 - aTarget.y * 1.4);
+        float sweep = pow(max(0.0, sin(uTime * 0.85 - aTarget.y * 1.15)), 3.0);
+        vEnergy = aEnergy * a * (pulse + sweep * 0.6);
+        float tw = 0.72 + 0.28 * sin(uTime * (0.8 + aRand * 2.0) + aRand * 30.0);
+        vAlpha = tw * mix(0.5, 1.18, a) * smoothstep(-26.0, -3.0, mv.z);
       }
     `,
     fragmentShader: /* glsl */ `
@@ -160,13 +163,14 @@ export function initCore(canvas, { section, reduced = false } = {}) {
         float d = length(gl_PointCoord - 0.5);
         float disc = smoothstep(0.5, 0.06, d);
         if (disc < 0.01) discard;
-        vec3 dust    = vec3(0.11, 0.32, 0.27);   /* dim emerald nebula */
-        vec3 emerald = vec3(0.008, 0.302, 0.251); /* Dark Emerald #014D40 */
-        vec3 lumina  = vec3(0.184, 0.816, 0.627); /* luminous emerald */
-        vec3 crown   = vec3(0.86, 0.90, 0.92);    /* silver-chrome spark */
+        vec3 dust    = vec3(0.11, 0.34, 0.29);   /* dim emerald nebula */
+        vec3 emerald = vec3(0.03, 0.47, 0.37);   /* lit dark-emerald body */
+        vec3 lumina  = vec3(0.24, 0.98, 0.74);   /* luminous emerald seam */
+        vec3 crown   = vec3(0.90, 0.97, 0.99);   /* silver-chrome spark */
         vec3 col = mix(dust, emerald, vForm);
+        col += lumina * 0.16 * vForm;            /* energy threaded through the body */
         col = mix(col, lumina, clamp(vEnergy, 0.0, 1.0));
-        col = mix(col, crown, smoothstep(0.85, 1.0, vEnergy));
+        col = mix(col, crown, smoothstep(0.92, 1.3, vEnergy));
         gl_FragColor = vec4(col, disc * vAlpha);
       }
     `,
@@ -176,6 +180,34 @@ export function initCore(canvas, { section, reduced = false } = {}) {
   const pivot = new THREE.Group();
   pivot.add(points);
   scene.add(pivot);
+
+  /* an additive bloom halo behind the shaft that blooms as it forms, so the
+     monolith reads as a source of light, not a dark silhouette on the void */
+  function glowTexture() {
+    const s = 128;
+    const c = document.createElement('canvas');
+    c.width = c.height = s;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(s / 2, s / 2, 0, s / 2, s / 2, s / 2);
+    g.addColorStop(0, 'rgba(70,255,196,0.85)');
+    g.addColorStop(0.35, 'rgba(24,160,120,0.30)');
+    g.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, s, s);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }
+  const glow = new THREE.Sprite(new THREE.SpriteMaterial({
+    map: glowTexture(),
+    transparent: true,
+    depthWrite: false,
+    blending: THREE.AdditiveBlending,
+    opacity: 0,
+  }));
+  glow.position.set(0, FIG_H * 0.5, -0.6);
+  glow.scale.setScalar(2);
+  scene.add(glow);
 
   /* set once the reduced-motion path has drawn its single frame: setSize
      resets the WebGL backing store, so without a rAF loop we must repaint
@@ -225,14 +257,22 @@ export function initCore(canvas, { section, reduced = false } = {}) {
   const clock = new THREE.Clock();
 
   function apply(p) {
-    material.uniforms.uAssemble.value = p;
-    /* dolly in and settle to a low hero angle as the form resolves */
-    const e = smooth(p);
-    camera.position.set(0, 2.6 + e * 0.5, 17.5 - e * 7.2);
+    /* the monolith fully assembles over the first ~62% of the scroll; the
+       remainder is a dwell — the formed obelisk turning, energy pulsing,
+       camera settling — so the pinned section pays off throughout, not only
+       at the very end. */
+    const aP = clamp(p / 0.62, 0, 1);
+    material.uniforms.uAssemble.value = aP;
+    const e = smooth(aP);
+    /* dolly from far dust to a low hero angle, with a slow lateral drift */
+    camera.position.set(Math.sin(time * 0.08) * 0.5, 2.5 + e * 0.7, 18.4 - e * 8.9);
     camera.lookAt(0, FIG_H * 0.52, 0);
-    /* a slow reveal turn: a third of a rotation across the whole scroll,
-       plus a gentle idle drift so the settled monolith never feels frozen */
-    pivot.rotation.y = -0.5 + p * 2.1 + Math.sin(time * 0.15) * 0.06 * e;
+    /* a reveal turn across the whole scroll + a gentle idle drift so the
+       settled monolith never feels frozen */
+    pivot.rotation.y = -0.6 + p * 2.4 + Math.sin(time * 0.15) * 0.06 * e;
+    /* the bloom blooms with the form and pulses on the chrono cadence */
+    glow.material.opacity = e * (0.42 + 0.12 * Math.sin(time * 1.6));
+    glow.scale.setScalar(2.2 + e * 6.4);
     setCaption(p);
   }
 

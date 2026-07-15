@@ -149,6 +149,20 @@ if (heroMedia && heroStill && !reducedMotion.matches) {
   }, 7000);
 }
 
+/* Depth — the persistent parallax starfield behind the whole page. Boots at
+   idle (never races the LCP hero); a static frame under reduced motion, and
+   the obsidian body background stands in without WebGL. */
+const depthCanvas = document.getElementById('depth-canvas');
+if (depthCanvas && hasWebGL) {
+  const loadDepth = () => import('./depth.js')
+    .then(({ initDepth }) => initDepth(depthCanvas, { reduced: reducedMotion.matches }))
+    .catch(() => depthCanvas.remove());
+  if ('requestIdleCallback' in window) requestIdleCallback(loadDepth, { timeout: 2200 });
+  else setTimeout(loadDepth, 420);
+} else if (depthCanvas) {
+  depthCanvas.remove();
+}
+
 /* Hero particles: decorative, so the 3D module waits for an idle
    moment instead of racing the LCP image and fonts for bandwidth */
 const heroCanvas = document.getElementById('hero-canvas');
