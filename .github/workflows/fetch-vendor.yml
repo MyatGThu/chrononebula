@@ -1,0 +1,47 @@
+# Vendor third-party front-end libraries the same way the site vendors
+# Three.js: fetch PINNED builds on the CI runner (open egress) and commit the
+# single files under vendor/. No bundler, no npm at runtime.
+#
+# Pinned:
+#   - gsap@3.15.0            dist/gsap.min.js + dist/ScrollTrigger.min.js  (UMD globals)
+#   - animejs@4.5.0          dist/bundles/anime.esm.min.js                 (ESM)
+#   - @fiddle-digital/string-tune@1.2.0  dist/index.mjs                    (ESM)
+name: Fetch vendor libraries
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch pinned browser builds
+        run: |
+          mkdir -p vendor
+          fetch () {  # url  outfile  must-contain
+            echo "fetching $1"
+            curl -fsSL "$1" -o "$2"
+            bytes=$(wc -c < "$2")
+            echo "  -> $2 ($bytes bytes)"
+            if [ "$bytes" -lt 400 ]; then echo "  ERROR: too small"; exit 1; fi
+            if grep -qi "<!doctype html" "$2"; then echo "  ERROR: got HTML"; exit 1; fi
+            if ! grep -q "$3" "$2"; then echo "  ERROR: missing marker '$3'"; exit 1; fi
+          }
+          fetch "https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/gsap.min.js"                       vendor/gsap.min.js          "gsap"
+          fetch "https://cdn.jsdelivr.net/npm/gsap@3.15.0/dist/ScrollTrigger.min.js"              vendor/ScrollTrigger.min.js "ScrollTrigger"
+          fetch "https://cdn.jsdelivr.net/npm/animejs@4.5.0/dist/bundles/anime.esm.min.js"        vendor/anime.esm.min.js     "export"
+          fetch "https://cdn.jsdelivr.net/npm/@fiddle-digital/string-tune@1.2.0/dist/index.mjs"   vendor/string-tune.mjs      "export"
+          echo "--- vendor/ ---"; ls -la vendor
+
+      - name: Commit and push
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add vendor
+          git commit -m "Vendor gsap@3.15.0, animejs@4.5.0, string-tune@1.2.0" || echo "nothing to commit"
+          git push
