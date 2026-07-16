@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LOOMLIGHT · A ChronoNebula Preview · 8888 AD</title>
+  <meta name="description" content="LOOMLIGHT — a scroll-driven descent through a volumetric emerald nebula until the light weaves itself into couture. A ChronoNebula preview by Quantum Lumina AI, built with Three.js, GSAP, StringTune and Anime.js.">
+  <meta name="theme-color" content="#050506">
+  <meta property="og:title" content="LOOMLIGHT · A ChronoNebula Preview">
+  <meta property="og:description" content="Fall through the emerald nebula until the light remembers it was always a garment.">
+  <meta property="og:url" content="https://myatgthu.github.io/chrononebula/preview.html">
+  <meta property="og:image" content="https://myatgthu.github.io/chrononebula/assets/outfits/black-chronoa.jpg">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='34' fill='none' stroke='%232FD0A0' stroke-width='6'/%3E%3Ccircle cx='50' cy='16' r='9' fill='%232FD0A0'/%3E%3C/svg%3E">
+  <link rel="preload" href="assets/fonts/cinzel.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/fonts.css">
+  <link rel="stylesheet" href="css/preview.css">
+  <script>document.documentElement.classList.replace('no-js', 'js');</script>
+  <!-- GSAP + ScrollTrigger are UMD globals: classic scripts run before the module -->
+  <script src="vendor/gsap.min.js" defer></script>
+  <script src="vendor/ScrollTrigger.min.js" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#offer">Skip to the invitation</a>
+
+  <section class="loom" id="loom">
+    <div class="loom-stage">
+      <canvas class="loom-canvas" id="loom-canvas" aria-hidden="true"></canvas>
+
+      <!-- poster stand-in when WebGL is unavailable -->
+      <div class="loom-poster" aria-hidden="true"></div>
+
+      <div class="loom-ui">
+        <!-- the chrono-ring sigil (Anime draws it, StringTune magnetises it) -->
+        <svg class="loom-ring" data-string data-string-magnetic viewBox="0 0 200 200" aria-hidden="true">
+          <circle cx="100" cy="100" r="86" fill="none" stroke="var(--st-emerald)" stroke-width="1" stroke-opacity="0.7"/>
+          <circle cx="100" cy="100" r="70" fill="none" stroke="var(--st-chrome)" stroke-width="1" stroke-opacity="0.4" stroke-dasharray="2 6"/>
+          <path d="M100 22 A78 78 0 0 1 178 100" fill="none" stroke="var(--st-emerald)" stroke-width="2"/>
+          <circle cx="100" cy="100" r="4" fill="var(--st-emerald)"/>
+        </svg>
+
+        <p class="loom-intro">
+          <span class="loom-kicker">8888 AD · Quantum Lumina AI opens the loom</span>
+          <span class="loom-yearline">The year is <span class="loom-year">8888</span></span>
+        </p>
+
+        <h1 class="loom-wordmark" aria-label="LOOMLIGHT">
+          <span class="ch">L</span><span class="ch">O</span><span class="ch">O</span><span class="ch">M</span><span class="ch">L</span><span class="ch">I</span><span class="ch">G</span><span class="ch">H</span><span class="ch">T</span>
+        </h1>
+
+        <p class="loom-caption" data-from="0.14" data-to="0.30">Every couture house begins as weather.</p>
+        <p class="loom-caption" data-from="0.30" data-to="0.44">We fall through the emerald, and the emerald parts.</p>
+        <p class="loom-caption" data-from="0.46" data-to="0.60">At its heart, the light forgets it was ever a cloud.</p>
+        <p class="loom-caption" data-from="0.64" data-to="0.86">A hundred thousand motes remember they were always a garment.</p>
+
+        <div class="loom-cta" id="offer">
+          <p class="loom-offer">Woven from light.</p>
+          <a class="loom-cta-link" data-string data-string-magnetic href="index.html">
+            <span class="loom-cta-glow" aria-hidden="true"></span>
+            <span class="loom-cta-label">Enter the Atlas &rarr;</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <p class="loom-hint" aria-hidden="true">scroll to descend</p>
+  </section>
+
+  <noscript>
+    <div class="loom-noscript">
+      <h1>LOOMLIGHT</h1>
+      <p>Fall through the emerald nebula until the light remembers it was always a garment.</p>
+      <p>This preview weaves a volumetric emerald cloud into couture as you scroll — it needs
+      JavaScript and WebGL. The full universe is at <a href="index.html">the Atlas</a>, and the
+      collection walks on <a href="runway.html">Runway 8888</a>.</p>
+    </div>
+  </noscript>
+
+  <script type="module" src="js/loomlight.js"></script>
+</body>
+</html>
